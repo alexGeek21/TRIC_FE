@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deine WebApp</title>
+</head>
+<body>
+    <!-- Dein bestehender App-Inhalt hier -->
+    
+    <!-- NEUE FORMULAR-SEITE -->
+    <section>
+        <h2>Kontakt / Anfrage</h2>
+        <form name="kontaktform" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+            
+            <!-- HIDDEN: Netlify braucht das für Form-Erkennung -->
+            <input type="hidden" name="form-name" value="kontaktform">
+            
+            <!-- HONEYPOT: Spam-Filter (unsichtbar für Menschen) -->
+            <div hidden>
+                <label>Don't fill this out if you're human: 
+                    <input name="bot-field">
+                </label>
+            </div>
+            
+            <!-- DEINE FIELDS -->
+            <div>
+                <label>Name: <input type="text" name="name" required></label>
+            </div>
+            <div>
+                <label>E-Mail: <input type="email" name="email" required></label>
+            </div>
+            <div>
+                <label>Nachricht: 
+                    <textarea name="nachricht" rows="5" required></textarea>
+                </label>
+            </div>
+            
+            <!-- OPTIONAL: Betreff für E-Mail festlegen -->
+            <input type="hidden" name="subject" value="Neue Anfrage von WebApp">
+            
+            <button type="submit">Absenden</button>
+        </form>
+        
+        <!-- SUCCESS MESSAGE (wird nach Submit gezeigt) -->
+        <p id="success" style="display:none; color:green;">Vielen Dank! Deine Nachricht wurde versendet.</p>
+    </section>
+
+    <script>
+        // JS für Success-Message nach Submit
+        document.querySelector('form').addEventListener('submit', function() {
+            document.getElementById('success').style.display = 'block';
+            document.querySelector('form').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
