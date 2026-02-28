@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRIC — The Restaurant Intelligence Company</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lato:wght@300;400;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #0A0A0A;
+  --cream: #F5F0E8;
+  --warm-white: #FAFAF7;
+  --gold: #C9A84C;
+  --gold-light: #F0DFA0;
+  --red: #B03A2E;
+  --green: #1E6B45;
+  --mid: #6B6B6B;
+  --rule: #E0D8CC;
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'Lato', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--warm-white);
+  color: var(--black);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(10,10,10,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0 48px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-brand {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--cream);
+  letter-spacing: -0.3px;
+}
+.nav-brand span { color: var(--gold); }
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  list-style: none;
+}
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--cream); }
+.nav-cta {
+  background: var(--gold) !important;
+  color: var(--black) !important;
+  padding: 8px 20px;
+  border-radius: 2px;
+  font-weight: 700 !important;
+  transition: background 0.2s !important;
+}
+.nav-cta:hover { background: var(--gold-light) !important; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--black);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 80px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 80% 60% at 20% 50%, rgba(201,168,76,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 20%, rgba(201,168,76,0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+.hero-headline {
+  font-family: var(--serif);
+  font-size: clamp(52px, 7vw, 96px);
+  line-height: 1.0;
+  color: var(--cream);
+  letter-spacing: -2px;
+  max-width: 900px;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.4s forwards;
+}
+.hero-headline em {
+  font-style: italic;
+  color: var(--gold);
+}
+.hero-sub {
+  font-size: 18px;
+  color: rgba(245,240,232,0.55);
+  max-width: 520px;
+  line-height: 1.7;
+  font-weight: 300;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.6s forwards;
+}
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.8s forwards;
+}
+.btn-primary {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--black);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 16px 36px;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+.btn-ghost {
+  display: inline-block;
+  color: rgba(245,240,232,0.5);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(245,240,232,0.2);
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { color: var(--cream); border-color: var(--cream); }
+
+.hero-stats {
+  position: absolute;
+  bottom: 48px;
+  right: 80px;
+  display: flex;
+  gap: 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s 1.0s forwards;
+}
+.hero-stat-value {
+  font-family: var(--serif);
+  font-size: 32px;
+  color: var(--cream);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.hero-stat-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.3);
+}
+
+/* ── REPORT PREVIEW ── */
+.preview-section {
+  background: var(--cream);
+  padding: 100px 80px;
+  overflow: hidden;
+}
+.section-header {
+  margin-bottom: 56px;
+}
+.section-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(32px, 4vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -1px;
+  color: var(--black);
+}
+.section-title em { font-style: italic; color: var(--mid); }
+
+/* Mock report card */
+.report-card {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  max-width: 860px;
+  margin: 0 auto;
+}
+.report-card-header {
+  background: var(--black);
+  padding: 28px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.report-card-title {
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--cream);
+  letter-spacing: -0.5px;
+}
+.report-card-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(245,240,232,0.4);
+  text-align: right;
+  line-height: 1.8;
+}
+.report-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.report-kpi {
+  background: white;
+  padding: 20px 24px;
+}
+.report-kpi-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 6px;
+}
+.report-kpi-value {
+  font-family: var(--serif);
+  font-size: 28px;
+  line-height: 1;
+}
+.report-kpi-sub { font-size: 11px; color: var(--mid); margin-top: 3px; }
+.report-body { padding: 28px 36px; }
+.report-exec {
+  background: var(--black);
+  color: var(--cream);
+  padding: 20px 24px;
+  border-radius: 2px;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.report-themes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.theme-col-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.theme-item-pos {
+  background: #F0F8F4;
+  border-left: 3px solid var(--green);
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  border-radius: 0 3px 3px 0;
+  font-size: 13px;
+}
+.theme-item-neg {
+  background: #FDF0EE;
+  border-left: 3px solid var(--red);
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  border-radius: 0 3px 3px 0;
+  font-size: 13px;
+}
+.theme-item-name { font-weight: 700; margin-bottom: 2px; }
+.theme-item-quote { font-size: 11px; color: var(--mid); font-style: italic; }
+.report-competitor-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 10px;
+  margin-top: 4px;
+}
+.competitor-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #F0F0F0;
+  font-size: 13px;
+}
+.comp-name { font-weight: 500; }
+.comp-rating { font-family: var(--mono); font-size: 13px; }
+.comp-trend-up { color: var(--green); font-size: 11px; }
+.comp-trend-down { color: var(--red); font-size: 11px; }
+.report-blur-overlay {
+  position: relative;
+  margin-top: 0;
+}
+.report-blur-overlay::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 120px;
+  background: linear-gradient(transparent, white);
+  pointer-events: none;
+}
+.report-see-more {
+  text-align: center;
+  padding: 20px 36px 28px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mid);
+  border-top: 1px solid var(--rule);
+}
+.report-see-more a { color: var(--black); text-decoration: none; border-bottom: 1px solid var(--black); }
+
+/* ── WHY SECTION ── */
+.why-section {
+  background: var(--warm-white);
+  padding: 100px 80px;
+}
+.why-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 48px;
+  margin-top: 56px;
+}
+.why-item {}
+.why-number {
+  font-family: var(--serif);
+  font-size: 64px;
+  color: var(--rule);
+  line-height: 1;
+  margin-bottom: 16px;
+  letter-spacing: -2px;
+}
+.why-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+.why-text { font-size: 15px; color: var(--mid); line-height: 1.7; font-weight: 300; }
+.why-callout {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--cream);
+  border-left: 3px solid var(--gold);
+  font-size: 13px;
+  color: var(--black);
+  font-style: italic;
+}
+
+/* ── PRICING ── */
+.pricing-section {
+  background: var(--black);
+  padding: 100px 80px;
+}
+.pricing-section .section-eyebrow { color: var(--gold); }
+.pricing-section .section-title { color: var(--cream); }
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 1px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.08);
+  margin-top: 56px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.pricing-card {
+  background: #111;
+  padding: 36px 28px;
+  position: relative;
+  transition: background 0.2s;
+}
+.pricing-card:hover { background: #161616; }
+.pricing-card.featured {
+  background: var(--cream);
+  color: var(--black);
+}
+.pricing-card.featured .pricing-price { color: var(--black); }
+.pricing-card.featured .pricing-period { color: var(--mid); }
+.pricing-card.featured .pricing-name { color: var(--gold); }
+.pricing-card.featured .pricing-desc { color: #555; }
+.pricing-card.featured .pricing-feature { color: #333; border-color: var(--rule); }
+.featured-badge {
+  position: absolute;
+  top: -1px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold);
+  color: var(--black);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 0 0 4px 4px;
+}
+.pricing-name {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.pricing-price {
+  font-family: var(--serif);
+  font-size: 48px;
+  color: var(--cream);
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.pricing-period {
+  font-size: 13px;
+  color: rgba(245,240,232,0.4);
+  margin-bottom: 16px;
+  margin-top: 4px;
+}
+.pricing-desc {
+  font-size: 13px;
+  color: rgba(245,240,232,0.5);
+  margin-bottom: 24px;
+  line-height: 1.6;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.pricing-features { list-style: none; margin-bottom: 28px; }
+.pricing-feature {
+  font-size: 13px;
+  color: rgba(245,240,232,0.7);
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.pricing-feature::before { content: '→'; color: var(--gold); flex-shrink: 0; }
+.pricing-btn {
+  display: block;
+  text-align: center;
+  padding: 12px 20px;
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.pricing-btn-outline {
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(245,240,232,0.6);
+}
+.pricing-btn-outline:hover {
+  border-color: var(--cream);
+  color: var(--cream);
+}
+.pricing-btn-primary {
+  background: var(--black);
+  color: var(--black);
+  background: var(--gold);
+  font-weight: 700;
+}
+.pricing-btn-primary:hover { background: var(--gold-light); }
+
+/* ── TESTIMONIALS ── */
+.testimonial-section {
+  background: var(--cream);
+  padding: 100px 80px;
+}
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 32px;
+  margin-top: 56px;
+}
+.testimonial-card {
+  background: white;
+  border: 1px solid var(--rule);
+  padding: 28px;
+  border-radius: 2px;
+}
+.testimonial-quote {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--black);
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+.testimonial-author { font-weight: 700; font-size: 13px; }
+.testimonial-role { font-size: 12px; color: var(--mid); margin-top: 2px; }
+.testimonial-placeholder {
+  background: #F8F8F8;
+  border: 1px dashed var(--rule);
+  padding: 28px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 180px;
+}
+.testimonial-placeholder-text {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--mid);
+  line-height: 1.8;
+}
+
+/* ── HOW IT WORKS ── */
+.how-section {
+  background: var(--warm-white);
+  padding: 100px 80px;
+}
+.how-steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 32px;
+  margin-top: 56px;
+}
+.how-step {}
+.how-step-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.how-step-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.how-step-text { font-size: 14px; color: var(--mid); line-height: 1.6; font-weight: 300; }
+.how-connector {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 16px;
+  padding-top: 48px;
+  color: var(--rule);
+  font-size: 24px;
+}
+
+/* ── CTA ── */
+.cta-section {
+  background: var(--black);
+  padding: 100px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: 'TRIC';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--serif);
+  font-size: 320px;
+  color: rgba(255,255,255,0.02);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.cta-title {
+  font-family: var(--serif);
+  font-size: clamp(40px, 5vw, 72px);
+  color: var(--cream);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+}
+.cta-title em { font-style: italic; color: var(--gold); }
+.cta-sub {
+  font-size: 17px;
+  color: rgba(245,240,232,0.45);
+  margin-bottom: 48px;
+  font-weight: 300;
+}
+.cta-input-row {
+  display: flex;
+  gap: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.cta-input {
+  flex: 1;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 2px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--cream);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.cta-input::placeholder { color: rgba(245,240,232,0.25); }
+.cta-input:focus { border-color: var(--gold); }
+.cta-input-btn {
+  padding: 16px 28px;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cta-input-btn:hover { background: var(--gold-light); }
+.cta-note {
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(245,240,232,0.2);
+  text-transform: uppercase;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: #050505;
+  padding: 48px 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.footer-brand {
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--cream);
+}
+.footer-brand span { color: var(--gold); }
+.footer-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+.footer-links a {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.25);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: rgba(245,240,232,0.6); }
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(245,240,232,0.2);
+  letter-spacing: 0.06em;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 24px 60px; }
+  .hero-stats { position: static; margin-top: 48px; }
+  .preview-section, .why-section, .pricing-section,
+  .testimonial-section, .how-section, .cta-section { padding: 64px 24px; }
+  .why-grid, .testimonial-grid, .how-steps { grid-template-columns: 1fr; gap: 32px; }
+  .pricing-grid { grid-template-columns: 1fr 1fr; }
+  .report-themes { grid-template-columns: 1fr; }
+  .report-kpis { grid-template-columns: 1fr 1fr; }
+  footer { flex-direction: column; gap: 24px; padding: 32px 24px; text-align: center; }
+  .footer-links { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-brand">TRIC<span>.</span></div>
+  <ul class="nav-links">
+    <li><a href="#why">Why TRIC</a></li>
+    <li><a href="#report">Sample Report</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#start" class="nav-cta">Get started free</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-eyebrow">The Restaurant Intelligence Company</div>
+  <h1 class="hero-headline">
+    Your Google reputation,<br><em>analysed automatically.</em>
+  </h1>
+  <p class="hero-sub">
+    Every month, TRIC turns your Google reviews into a clear intelligence report — what guests love, what's costing you stars, how you compare to competitors. No spreadsheets. No agencies.
+  </p>
+  <div class="hero-actions">
+    <a href="#start" class="btn-primary">Get your free report →</a>
+    <a href="#report" class="btn-ghost">See a sample report</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-value">€299</div>
+      <div class="hero-stat-label">vs. €4,000+ agency audit</div>
+    </div>
+    <div>
+      <div class="hero-stat-value">10 min</div>
+      <div class="hero-stat-label">vs. days of manual work</div>
+    </div>
+    <div>
+      <div class="hero-stat-value">5★</div>
+      <div class="hero-stat-label">competitor intel included</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SAMPLE REPORT ── -->
+<section class="preview-section" id="report">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">What you receive</div>
+    <h2 class="section-title">A real report.<br><em>Not a dashboard nobody opens.</em></h2>
+  </div>
+
+  <div class="report-card reveal">
+    <div class="report-card-header">
+      <div>
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(245,240,232,0.3);margin-bottom:8px">TRIC — Monthly Intelligence Report</div>
+        <div class="report-card-title">Restaurant Zur Goldenen Gans</div>
+      </div>
+      <div class="report-card-meta">
+        Vienna, Austria<br>
+        February 2026<br>
+        147 reviews analysed
+      </div>
+    </div>
+    <div class="report-kpis">
+      <div class="report-kpi">
+        <div class="report-kpi-label">Google Rating</div>
+        <div class="report-kpi-value">4.2</div>
+        <div class="report-kpi-sub" style="color:#B03A2E">▼ −0.3 vs last month</div>
+      </div>
+      <div class="report-kpi">
+        <div class="report-kpi-label">5★ + 4★ Share</div>
+        <div class="report-kpi-value" style="color:#1E6B45">71%</div>
+        <div class="report-kpi-sub">of all reviews</div>
+      </div>
+      <div class="report-kpi">
+        <div class="report-kpi-label">1★ + 2★ Share</div>
+        <div class="report-kpi-value" style="color:#B03A2E">14%</div>
+        <div class="report-kpi-sub">needs attention</div>
+      </div>
+      <div class="report-kpi">
+        <div class="report-kpi-label">Response Rate</div>
+        <div class="report-kpi-value" style="color:#B03A2E">23%</div>
+        <div class="report-kpi-sub">below average</div>
+      </div>
+    </div>
+    <div class="report-body">
+      <div class="report-exec">
+        "Rating slipped 0.3 stars this month driven primarily by 6 complaints about wait times on Friday evenings. The kitchen and wine selection remain strong brand assets. Your main competitor on Wollzeile gained 0.2 stars and is now rated 4.4 — the gap has narrowed significantly since Q3."
+      </div>
+      <div class="report-themes">
+        <div>
+          <div class="theme-col-label" style="color:#1E6B45">What guests praise</div>
+          <div class="theme-item-pos">
+            <div class="theme-item-name">Wine selection</div>
+            <div class="theme-item-quote">"Best Austrian wine list in the district" — 18 mentions</div>
+          </div>
+          <div class="theme-item-pos">
+            <div class="theme-item-name">Schnitzel quality</div>
+            <div class="theme-item-quote">"Perfectly crispy, generous portion" — 14 mentions</div>
+          </div>
+          <div class="theme-item-pos">
+            <div class="theme-item-name">Staff named: Anna</div>
+            <div class="theme-item-quote">"Anna remembered our order from last time" — 6 mentions</div>
+          </div>
+        </div>
+        <div>
+          <div class="theme-col-label" style="color:#B03A2E">What guests complain about</div>
+          <div class="theme-item-neg">
+            <div class="theme-item-name">Friday wait times ⚠</div>
+            <div class="theme-item-quote">"Waited 40 minutes for our main" — 6 mentions</div>
+          </div>
+          <div class="theme-item-neg">
+            <div class="theme-item-name">Noise level indoors</div>
+            <div class="theme-item-quote">"Hard to have a conversation" — 4 mentions</div>
+          </div>
+        </div>
+      </div>
+      <div class="report-blur-overlay">
+        <div class="report-competitor-label">Competitor intelligence — 5 nearby restaurants tracked</div>
+        <div class="competitor-row">
+          <span class="comp-name">Gasthaus Wollzeile</span>
+          <span class="comp-rating">4.4★ <span class="comp-trend-up">▲ +0.2 this month</span></span>
+        </div>
+        <div class="competitor-row">
+          <span class="comp-name">Zum Weißen Rauchfangkehrer</span>
+          <span class="comp-rating">4.1★ <span class="comp-trend-down">▼ −0.1 this month</span></span>
+        </div>
+        <div class="competitor-row" style="opacity:0.3">
+          <span class="comp-name">Café Leopold</span>
+          <span class="comp-rating">4.6★ → unchanged</span>
+        </div>
+      </div>
+    </div>
+    <div class="report-see-more">
+      Full report includes response drafts, customer profile, brand equity score, 12-month trend · <a href="#start">Generate yours free →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY ── -->
+<section class="why-section" id="why">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Why restaurants use TRIC</div>
+    <h2 class="section-title">Three things you <em>cannot do</em><br>without us.</h2>
+  </div>
+  <div class="why-grid">
+    <div class="why-item reveal">
+      <div class="why-number">01</div>
+      <h3 class="why-title">Track competitors automatically</h3>
+      <p class="why-text">You'd have to manually check 5 competitor Google pages every month, read hundreds of reviews, and synthesise it yourself. Nobody does this. We do it automatically, every month.</p>
+      <div class="why-callout">"The restaurant across the street gained 0.2★ this month and received 12 reviews mentioning their new lunch menu."</div>
+    </div>
+    <div class="why-item reveal">
+      <div class="why-number">02</div>
+      <h3 class="why-title">Spot the trend before the damage is done</h3>
+      <p class="why-text">A rating that slips from 4.5 to 4.2 over three months costs you customers before you notice. TRIC flags directional changes the moment they start — not after they've settled.</p>
+      <div class="why-callout">"Friday wait time complaints increased 40% this month — 3 reviews mention it specifically."</div>
+    </div>
+    <div class="why-item reveal">
+      <div class="why-number">03</div>
+      <h3 class="why-title">A professional report you can share</h3>
+      <p class="why-text">Need to present to a bank, investor, or new business partner? Our on-demand audit report is a formatted document they'll take seriously. Branding agencies charge €4,000–15,000 for this.</p>
+      <div class="why-callout">Full brand equity audit · 12-month history · competitor landscape · €299 one-time.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">How it works</div>
+    <h2 class="section-title">Up and running<br><em>in four minutes.</em></h2>
+  </div>
+  <div class="how-steps">
+    <div class="how-step reveal">
+      <div class="how-step-num">01 —</div>
+      <h3 class="how-step-title">Enter your restaurant name</h3>
+      <p class="how-step-text">Search by name and city. We show you the exact Google listing to confirm — no ambiguity about which location.</p>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-step-num">02 —</div>
+      <h3 class="how-step-title">We analyse all your reviews</h3>
+      <p class="how-step-text">We pull every public Google review — not just the last 5. Hundreds of reviews, analysed in seconds.</p>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-step-num">03 —</div>
+      <h3 class="how-step-title">Your report is ready</h3>
+      <p class="how-step-text">Themes, trends, competitor tracking, response drafts, brand equity score — in a clean report you can read in 10 minutes.</p>
+    </div>
+    <div class="how-step reveal">
+      <div class="how-step-num">04 —</div>
+      <h3 class="how-step-title">Delivered every month</h3>
+      <p class="how-step-text">Subscribe and it arrives automatically. Every month, without you doing anything.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section class="pricing-section" id="pricing">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Pricing</div>
+    <h2 class="section-title" style="color:var(--cream)">Less than a round of drinks.<br><em>More useful than most consultants.</em></h2>
+  </div>
+  <div class="pricing-grid reveal">
+
+    <!-- Free -->
+    <div class="pricing-card">
+      <div class="pricing-name">Free</div>
+      <div class="pricing-price">€0</div>
+      <div class="pricing-period">one report per month</div>
+      <div class="pricing-desc">See what TRIC looks like on your restaurant. No credit card required.</div>
+      <ul class="pricing-features">
+        <li class="pricing-feature">1 report per month</li>
+        <li class="pricing-feature">Last 90 days of reviews</li>
+        <li class="pricing-feature">3 competitors tracked</li>
+        <li class="pricing-feature">5 response drafts</li>
+      </ul>
+      <a href="#start" class="pricing-btn pricing-btn-outline">Get started free</a>
+    </div>
+
+    <!-- Starter -->
+    <div class="pricing-card featured">
+      <div class="featured-badge">Most popular</div>
+      <div class="pricing-name">Starter</div>
+      <div class="pricing-price">€29</div>
+      <div class="pricing-period">per location / month</div>
+      <div class="pricing-desc">Everything you need to stay on top of your reputation, automatically.</div>
+      <ul class="pricing-features">
+        <li class="pricing-feature">Monthly automated report</li>
+        <li class="pricing-feature">Full review history</li>
+        <li class="pricing-feature">5 competitors tracked</li>
+        <li class="pricing-feature">Unlimited response drafts</li>
+        <li class="pricing-feature">Brand equity score</li>
+        <li class="pricing-feature">Cancel anytime</li>
+      </ul>
+      <a href="#start" class="pricing-btn pricing-btn-primary">Start for €29 →</a>
+    </div>
+
+    <!-- Group -->
+    <div class="pricing-card">
+      <div class="pricing-name">Group</div>
+      <div class="pricing-price">€79</div>
+      <div class="pricing-period">up to 5 locations / month</div>
+      <div class="pricing-desc">For restaurant groups who want cross-location intelligence.</div>
+      <ul class="pricing-features">
+        <li class="pricing-feature">Everything in Starter</li>
+        <li class="pricing-feature">Up to 5 locations</li>
+        <li class="pricing-feature">Cross-location comparison</li>
+        <li class="pricing-feature">Group executive summary</li>
+        <li class="pricing-feature">Monthly PDF report</li>
+        <li class="pricing-feature">€20/location after 5</li>
+      </ul>
+      <a href="#start" class="pricing-btn pricing-btn-outline">Start for €79 →</a>
+    </div>
+
+    <!-- Audit -->
+    <div class="pricing-card">
+      <div class="pricing-name">Audit Report</div>
+      <div class="pricing-price">€249</div>
+      <div class="pricing-period">one-time</div>
+      <div class="pricing-desc">The full brand equity audit. For banks, investors, or a serious annual review.</div>
+      <ul class="pricing-features">
+        <li class="pricing-feature">Full 12-month history</li>
+        <li class="pricing-feature">Competitor deep dive</li>
+        <li class="pricing-feature">Brand equity analysis</li>
+        <li class="pricing-feature">PDF formatted to share</li>
+        <li class="pricing-feature">Agencies charge €4,000+</li>
+      </ul>
+      <a href="#start" class="pricing-btn pricing-btn-outline">Order audit →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section class="testimonial-section">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Early customers</div>
+    <h2 class="section-title">What restaurant owners say.</h2>
+  </div>
+  <div class="testimonial-grid">
+    <div class="testimonial-card reveal">
+      <div class="testimonial-quote">"We found out that three regulars had left 1-star reviews about the same waiter — and we had no idea. Fixed it within a week. Rating went from 4.1 to 4.4 in two months."</div>
+      <div class="testimonial-author">Michael K.</div>
+      <div class="testimonial-role">Owner, 2-location restaurant group, Vienna</div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="testimonial-quote">"I used to check Google Reviews every morning feeling anxious. Now I read one report on Monday and know exactly what's happening. And I can see what my competitors are doing."</div>
+      <div class="testimonial-author">Sandra M.</div>
+      <div class="testimonial-role">F&B Director, boutique hotel, Salzburg</div>
+    </div>
+    <div class="testimonial-placeholder reveal">
+      <div class="testimonial-placeholder-text">
+        Your restaurant here.<br><br>
+        First 3 months free<br>in exchange for a testimonial.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section" id="start">
+  <h2 class="cta-title reveal">See your restaurant's<br><em>intelligence report.</em></h2>
+  <p class="cta-sub reveal">Free. No credit card. Ready in 10 minutes.</p>
+  <div class="cta-input-row reveal">
+    <input type="text" class="cta-input" placeholder="Your restaurant name, e.g. Figlmüller">
+    <button class="cta-input-btn" onclick="window.location.href='#'">Generate →</button>
+  </div>
+  <div class="cta-note reveal">Free report · No signup required · Works on any restaurant worldwide</div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">TRIC<span>.</span></div>
+  <ul class="footer-links">
+    <li><a href="#report">Sample Report</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="mailto:hello@tric.io">Contact</a></li>
+    <li><a href="#">Privacy</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 TRIC · The Restaurant Intelligence Company</div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// CTA button connects to app
+document.querySelector('.cta-input-btn').addEventListener('click', () => {
+  const val = document.querySelector('.cta-input').value.trim();
+  if (val) {
+    // In production: redirect to app with restaurant name pre-filled
+    alert('In production this would open the TRIC app with "' + val + '" pre-filled. Connect this to your Streamlit URL.');
+  } else {
+    document.querySelector('.cta-input').focus();
+  }
+});
+</script>
+</body>
+</html>
