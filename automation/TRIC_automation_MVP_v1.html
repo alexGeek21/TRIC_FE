@@ -454,6 +454,7 @@
       showPreview(data);
       setStatus('Place confirmed ✓', 'success');
     } catch(err) {
+      console.error('Places lookup failed:', err);
       previewAddress.textContent = 'Preview unavailable';
       setStatus('Place detected — preview limited (check API key)', '');
     }
