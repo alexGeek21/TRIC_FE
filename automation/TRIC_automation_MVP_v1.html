@@ -273,12 +273,13 @@
   let currentUrl    = '';
   let isAnalysing   = false;
 
-  // ── Google Places (New API — replaces deprecated PlacesService) ─────────
+  // ── Google Places (New API via traditional script load) ──────────────────
   function loadGoogleMapsSDK() {
     return new Promise((resolve, reject) => {
-      if (window.google?.maps?.importLibrary) { resolve(); return; }
+      // Already loaded
+      if (window.google?.maps?.places?.Place) { resolve(); return; }
       const s = document.createElement('script');
-      s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&loading=async&libraries=places`;
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
       s.async = true;
       s.onload = resolve;
       s.onerror = reject;
@@ -288,7 +289,9 @@
 
   async function fetchPlaceFromGoogle(name, coords) {
     await loadGoogleMapsSDK();
-    const { Place } = await google.maps.importLibrary('places');
+
+    // Use the new Place class directly — no importLibrary needed
+    const Place = google.maps.places.Place;
 
     const request = {
       textQuery: name,
@@ -454,7 +457,6 @@
       showPreview(data);
       setStatus('Place confirmed ✓', 'success');
     } catch(err) {
-      console.error('Places lookup failed:', err);
       previewAddress.textContent = 'Preview unavailable';
       setStatus('Place detected — preview limited (check API key)', '');
     }
