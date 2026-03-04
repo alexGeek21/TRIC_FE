@@ -1,0 +1,4 @@
+[[headers]]
+  for = "/reports/*"
+  [headers.values]
+    Cache-Control = "no-cache"
