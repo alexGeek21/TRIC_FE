@@ -199,6 +199,7 @@
       <div class="preview-meta">
         <span class="meta-item"><span class="meta-dot"></span><span id="preview-type">—</span></span>
         <span class="meta-item">⭐ <span id="preview-rating">—</span></span>
+        <span class="meta-item">💬 <span id="preview-reviews"></span></span>
       </div>
     </div>
 
@@ -295,7 +296,7 @@
 
     const request = {
       textQuery: name,
-      fields: ['displayName', 'formattedAddress', 'rating', 'types'],
+      fields: ['displayName', 'formattedAddress', 'rating', 'userRatingCount', 'types'],
       ...(coords && {
         locationBias: {
           center: new google.maps.LatLng(coords.lat, coords.lng),
@@ -313,10 +314,11 @@
     const type = (p.types || []).find(t => !skip.has(t)) || 'place';
 
     return {
-      name:    p.displayName,
-      address: p.formattedAddress,
-      rating:  p.rating ? p.rating.toFixed(1) : null,
-      type:    type.replace(/_/g, ' ')
+      name:        p.displayName,
+      address:     p.formattedAddress,
+      rating:      p.rating ? p.rating.toFixed(1) : null,
+      reviewCount: p.userRatingCount || null,
+      type:        type.replace(/_/g, ' ')
     };
   }
 
@@ -332,6 +334,8 @@
     previewAddress.textContent = data.address || 'Address not available';
     previewType.textContent    = data.type    || 'Place';
     previewRating.textContent  = data.rating  ? `${data.rating} / 5` : 'No rating';
+    const reviewEl = document.getElementById('preview-reviews');
+    if (reviewEl) reviewEl.textContent = data.reviewCount ? `${data.reviewCount.toLocaleString()} reviews` : '';
     preview.classList.add('visible');
     divider.style.display = 'block';
     submitBtn.classList.add('visible');
