@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TRIC — Restaurant Intelligence</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #222222;
+      --border: #2e2e2e; --accent: #c8a96e; --accent-dim: rgba(200,169,110,0.12);
+      --text: #f0ece4; --text-muted: #888; --text-dim: #555;
+      --success: #5a9e6f; --error: #c0504a;
+      --radius: 12px; --transition: 0.2s ease;
+    }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', 'Helvetica Neue', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 2rem 1rem;
+    }
+    .container { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 2rem; }
+    .header { display: flex; flex-direction: column; gap: 0.4rem; }
+    .logo { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+    .header h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; }
+    .header p { font-size: 0.875rem; color: var(--text-muted); line-height: 1.5; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      display: flex; flex-direction: column; gap: 1.25rem;
+    }
+    .input-label {
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 0.5rem; display: block;
+    }
+    .input-wrapper { position: relative; display: flex; align-items: center; }
+    .input-wrapper input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem 2.5rem 0.75rem 0.875rem;
+      font-size: 0.875rem; color: var(--text); outline: none;
+      transition: border-color var(--transition); font-family: inherit;
+    }
+    .input-wrapper input::placeholder { color: var(--text-dim); }
+    .input-wrapper input:focus { border-color: var(--accent); }
+    .input-wrapper input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .clear-btn {
+      position: absolute; right: 0.625rem; background: none; border: none;
+      cursor: pointer; color: var(--text-dim); font-size: 1rem;
+      padding: 0.25rem; display: none; transition: color var(--transition);
+      align-items: center; justify-content: center;
+    }
+    .clear-btn:hover { color: var(--text-muted); }
+    .clear-btn.visible { display: flex; }
+
+    .status-line {
+      font-size: 0.8rem; color: var(--text-dim); min-height: 1.1rem;
+      display: flex; align-items: center; gap: 0.4rem; line-height: 1.4;
+    }
+    .status-line.loading { color: var(--accent); }
+    .status-line.error   { color: var(--error); }
+    .status-line.success { color: var(--success); }
+
+    .spinner {
+      width: 12px; height: 12px; border: 2px solid var(--accent-dim);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Preview */
+    .preview {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.1rem 1.25rem;
+      display: none; flex-direction: column; gap: 0.5rem;
+      animation: fadeIn 0.25s ease;
+    }
+    .preview.visible { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .preview-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+    }
+    .preview-name { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+    .preview-address { font-size: 0.825rem; color: var(--text-muted); line-height: 1.45; }
+    .preview-meta { display: flex; gap: 1rem; margin-top: 0.2rem; flex-wrap: wrap; }
+    .meta-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: var(--text-muted); }
+    .meta-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+
+    .divider { height: 1px; background: var(--border); }
+
+    /* Submit button */
+    .submit-btn {
+      background: var(--accent); color: #0f0f0f; border: none; border-radius: 8px;
+      padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 700;
+      letter-spacing: 0.02em; cursor: pointer; width: 100%;
+      transition: opacity var(--transition), transform var(--transition);
+      font-family: inherit; display: none;
+    }
+    .submit-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .submit-btn.visible { display: block; }
+
+    /* Progress block — shown while job is running */
+    .progress-box {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.25rem;
+      display: none; flex-direction: column; gap: 0.75rem;
+      animation: fadeIn 0.3s ease;
+    }
+    .progress-box.visible { display: flex; }
+    .progress-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+    }
+    .progress-steps { display: flex; flex-direction: column; gap: 0.5rem; }
+    .step {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.82rem; color: var(--text-dim);
+      transition: color var(--transition);
+    }
+    .step.active  { color: var(--accent); }
+    .step.done    { color: var(--success); }
+    .step-icon { font-size: 0.75rem; width: 16px; text-align: center; flex-shrink: 0; }
+    .step-spinner {
+      width: 10px; height: 10px; border: 1.5px solid var(--accent-dim);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+
+    /* Result box — shown when done */
+    .result-box {
+      background: rgba(90,158,111,0.08); border: 1px solid rgba(90,158,111,0.3);
+      border-radius: 10px; padding: 1.25rem;
+      display: none; flex-direction: column; gap: 0.75rem;
+      animation: fadeIn 0.3s ease;
+    }
+    .result-box.visible { display: flex; }
+    .result-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--success);
+    }
+    .result-link {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface); border: 1px solid rgba(90,158,111,0.25);
+      border-radius: 8px; padding: 0.75rem 1rem; gap: 0.75rem;
+      text-decoration: none; color: var(--text);
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .result-link:hover { border-color: var(--success); transform: translateY(-1px); }
+    .result-link-name { font-size: 0.875rem; font-weight: 600; }
+    .result-link-sub  { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem; }
+    .result-arrow { font-size: 1.1rem; color: var(--success); flex-shrink: 0; }
+
+    .reset-btn {
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.6rem 1rem; font-size: 0.8rem; color: var(--text-muted);
+      cursor: pointer; font-family: inherit; transition: border-color var(--transition), color var(--transition);
+    }
+    .reset-btn:hover { border-color: var(--text-muted); color: var(--text); }
+
+    .footer { text-align: center; font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.04em; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <span class="logo">TRIC</span>
+    <h1>Restaurant Intelligence</h1>
+    <p>Paste a Google Maps link to preview the restaurant, then submit to generate the intelligence report.</p>
+  </div>
+
+  <div class="card">
+
+    <!-- Input -->
+    <div>
+      <label class="input-label" for="maps-url">Google Maps URL</label>
+      <div class="input-wrapper">
+        <input type="text" id="maps-url"
+          placeholder="https://www.google.com/maps/place/... (from browser address bar)"
+          autocomplete="off" spellcheck="false"/>
+        <button class="clear-btn" id="clear-btn" title="Clear">✕</button>
+      </div>
+    </div>
+
+    <div class="status-line" id="status-line"></div>
+
+    <!-- Place preview -->
+    <div class="preview" id="preview">
+      <span class="preview-label">Detected Place</span>
+      <span class="preview-name" id="preview-name">—</span>
+      <span class="preview-address" id="preview-address">—</span>
+      <div class="preview-meta">
+        <span class="meta-item"><span class="meta-dot"></span><span id="preview-type">—</span></span>
+        <span class="meta-item">⭐ <span id="preview-rating">—</span></span>
+      </div>
+    </div>
+
+    <div class="divider" id="divider" style="display:none;"></div>
+
+    <!-- Analyse button -->
+    <button class="submit-btn" id="submit-btn">Analyse this restaurant →</button>
+
+    <!-- Progress tracker (shown while job runs) -->
+    <div class="progress-box" id="progress-box">
+      <span class="progress-label">Analysis in progress</span>
+      <div class="progress-steps">
+        <div class="step" id="step-scraping">
+          <span class="step-icon" id="icon-scraping">○</span>
+          Scraping reviews from Google Maps
+        </div>
+        <div class="step" id="step-building">
+          <span class="step-icon" id="icon-building">○</span>
+          Building intelligence report
+        </div>
+        <div class="step" id="step-publishing">
+          <span class="step-icon" id="icon-publishing">○</span>
+          Publishing report to your dashboard
+        </div>
+      </div>
+    </div>
+
+    <!-- Result (shown when done) -->
+    <div class="result-box" id="result-box">
+      <span class="result-label">Report ready</span>
+      <a class="result-link" id="result-link" href="#" target="_blank" rel="noopener">
+        <div>
+          <div class="result-link-name" id="result-place-name">View Report</div>
+          <div class="result-link-sub">Click to open your intelligence report ↗</div>
+        </div>
+        <span class="result-arrow">→</span>
+      </a>
+      <button class="reset-btn" id="reset-btn">Analyse another restaurant</button>
+    </div>
+
+  </div>
+
+  <div class="footer">TRIC · Restaurant Intelligence · v0.2</div>
+</div>
+
+<script>
+  // ── CONFIG ────────────────────────────────────────────────────────────────
+  const BACKEND_URL    = 'https://tric-be-mvp-service-v1.onrender.com';
+  const GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY'; // optional — for address/rating preview
+  const POLL_INTERVAL  = 3000;  // ms between status polls
+  const POLL_TIMEOUT   = 180000; // 3 min max wait
+
+  // ── DOM ───────────────────────────────────────────────────────────────────
+  const input          = document.getElementById('maps-url');
+  const clearBtn       = document.getElementById('clear-btn');
+  const statusLine     = document.getElementById('status-line');
+  const preview        = document.getElementById('preview');
+  const previewName    = document.getElementById('preview-name');
+  const previewAddress = document.getElementById('preview-address');
+  const previewType    = document.getElementById('preview-type');
+  const previewRating  = document.getElementById('preview-rating');
+  const divider        = document.getElementById('divider');
+  const submitBtn      = document.getElementById('submit-btn');
+  const progressBox    = document.getElementById('progress-box');
+  const resultBox      = document.getElementById('result-box');
+  const resultLink     = document.getElementById('result-link');
+  const resultPlaceName = document.getElementById('result-place-name');
+  const resetBtn       = document.getElementById('reset-btn');
+
+  let debounceTimer = null;
+  let pollTimer     = null;
+  let currentUrl    = '';
+  let placesService = null;
+  let isAnalysing   = false;
+
+  // ── Google Places (optional — for real address/rating in preview) ─────────
+  function loadGoogleMapsSDK() {
+    return new Promise((resolve, reject) => {
+      if (window.google && window.google.maps) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  function getPlacesService() {
+    if (!placesService) {
+      placesService = new google.maps.places.PlacesService(document.createElement('div'));
+    }
+    return placesService;
+  }
+
+  async function fetchPlaceFromGoogle(name, coords) {
+    await loadGoogleMapsSDK();
+    return new Promise((resolve, reject) => {
+      const req = {
+        query: name,
+        fields: ['name', 'formatted_address', 'rating', 'types'],
+        ...(coords && { locationBias: new google.maps.Circle({ center: coords, radius: 500 }) })
+      };
+      getPlacesService().findPlaceFromQuery(req, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results?.[0]) {
+          const p = results[0];
+          const skip = new Set(['point_of_interest','establishment','food']);
+          const type = (p.types||[]).find(t => !skip.has(t)) || 'place';
+          resolve({ name: p.name, address: p.formatted_address,
+                    rating: p.rating ? p.rating.toFixed(1) : null,
+                    type: type.replace(/_/g,' ') });
+        } else { reject(new Error(status)); }
+      });
+    });
+  }
+
+  // ── Status / UI helpers ───────────────────────────────────────────────────
+  function setStatus(msg, type = '') {
+    statusLine.className = 'status-line ' + type;
+    statusLine.innerHTML = type === 'loading'
+      ? `<span class="spinner"></span>${msg}` : msg;
+  }
+
+  function showPreview(data) {
+    previewName.textContent    = data.name    || 'Unknown';
+    previewAddress.textContent = data.address || 'Address not available';
+    previewType.textContent    = data.type    || 'Place';
+    previewRating.textContent  = data.rating  ? `${data.rating} / 5` : 'No rating';
+    preview.classList.add('visible');
+    divider.style.display = 'block';
+    submitBtn.classList.add('visible');
+  }
+
+  function hidePreview() {
+    preview.classList.remove('visible');
+    divider.style.display = 'none';
+    submitBtn.classList.remove('visible');
+  }
+
+  function setStep(stepId, iconId, state) {
+    // state: 'active' | 'done' | 'idle'
+    const step = document.getElementById(stepId);
+    const icon = document.getElementById(iconId);
+    step.className = 'step ' + (state === 'idle' ? '' : state);
+    if (state === 'active') {
+      icon.outerHTML = `<span class="step-spinner" id="${iconId}"></span>`;
+    } else if (state === 'done') {
+      document.getElementById(iconId).outerHTML = `<span class="step-icon" id="${iconId}">✓</span>`;
+    } else {
+      const el = document.getElementById(iconId);
+      if (el) el.textContent = '○';
+    }
+  }
+
+  // Infer progress from job status for the step indicators
+  // Outscraper call ~10s, build is instant, GitHub push ~2s
+  // We only get pending/running/done from the API so we animate steps by time
+  let stepTimer = null;
+  function startStepAnimation() {
+    setStep('step-scraping',   'icon-scraping',   'active');
+    setStep('step-building',   'icon-building',   'idle');
+    setStep('step-publishing', 'icon-publishing', 'idle');
+
+    // After ~12s assume scraping done, building
+    stepTimer = setTimeout(() => {
+      setStep('step-scraping', 'icon-scraping', 'done');
+      setStep('step-building', 'icon-building', 'active');
+
+      // After another ~2s assume building done, publishing
+      setTimeout(() => {
+        setStep('step-building',   'icon-building',   'done');
+        setStep('step-publishing', 'icon-publishing', 'active');
+      }, 2000);
+    }, 12000);
+  }
+
+  function finishSteps() {
+    clearTimeout(stepTimer);
+    setStep('step-scraping',   'icon-scraping',   'done');
+    setStep('step-building',   'icon-building',   'done');
+    setStep('step-publishing', 'icon-publishing', 'done');
+  }
+
+  function resetAll() {
+    clearTimeout(pollTimer);
+    clearTimeout(stepTimer);
+    isAnalysing = false;
+    input.value = '';
+    input.disabled = false;
+    currentUrl = '';
+    clearBtn.classList.remove('visible');
+    hidePreview();
+    progressBox.classList.remove('visible');
+    resultBox.classList.remove('visible');
+    submitBtn.classList.remove('visible');
+    setStatus('');
+    // Reset step icons
+    ['scraping','building','publishing'].forEach(s => {
+      const el = document.getElementById(`icon-${s}`);
+      if (el) el.textContent = '○';
+      document.getElementById(`step-${s}`).className = 'step';
+    });
+  }
+
+  // ── URL parsing ───────────────────────────────────────────────────────────
+  function isMapsUrl(s) {
+    return s.includes('google.com/maps') || s.includes('maps.app.goo.gl') ||
+           s.includes('maps.google.com') || s.includes('goo.gl/maps');
+  }
+  function isShortUrl(s) {
+    return s.includes('maps.app.goo.gl') || s.includes('goo.gl/maps');
+  }
+  function extractName(url) {
+    try {
+      const m = url.match(/\/maps\/place\/([^/@?]+)/);
+      return m ? decodeURIComponent(m[1]).replace(/\+/g,' ') : null;
+    } catch(e) { return null; }
+  }
+  function extractCoords(url) {
+    try {
+      const m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      return m ? { lat: parseFloat(m[1]), lng: parseFloat(m[2]) } : null;
+    } catch(e) { return null; }
+  }
+
+  // ── Preview lookup ────────────────────────────────────────────────────────
+  async function handleFullUrl(url) {
+    const name   = extractName(url);
+    const coords = extractCoords(url);
+    if (!name) { setStatus('Could not read place name from this URL', 'error'); return; }
+
+    // Show name immediately
+    previewName.textContent    = name;
+    previewAddress.textContent = 'Looking up…';
+    previewType.textContent    = '—';
+    previewRating.textContent  = '—';
+    preview.classList.add('visible');
+    divider.style.display = 'block';
+    submitBtn.classList.add('visible');
+
+    // If no API key configured, just show name and move on
+    if (GOOGLE_API_KEY === 'YOUR_GOOGLE_API_KEY') {
+      previewAddress.textContent = 'Add a Google API key for full preview';
+      setStatus('Place detected ✓', 'success');
+      return;
+    }
+
+    setStatus('Fetching place details…', 'loading');
+    try {
+      const data = await fetchPlaceFromGoogle(name, coords);
+      showPreview(data);
+      setStatus('Place confirmed ✓', 'success');
+    } catch(err) {
+      previewAddress.textContent = 'Preview unavailable';
+      setStatus('Place detected — preview limited (check API key)', '');
+    }
+  }
+
+  // ── Input handler ─────────────────────────────────────────────────────────
+  input.addEventListener('input', () => {
+    if (isAnalysing) return;
+    const val = input.value.trim();
+    currentUrl = val;
+    clearBtn.classList.toggle('visible', val.length > 0);
+    clearTimeout(debounceTimer);
+
+    if (!val)            { hidePreview(); setStatus(''); return; }
+    if (!isMapsUrl(val)) { hidePreview(); setStatus('Paste a Google Maps link to continue'); return; }
+
+    if (isShortUrl(val)) {
+      hidePreview();
+      setStatus(
+        '⚠️ Short links don\'t work for preview. Please open Google Maps and copy the full URL from your browser\'s address bar.',
+        'error'
+      );
+      return;
+    }
+
+    debounceTimer = setTimeout(() => handleFullUrl(val), 400);
+  });
+
+  clearBtn.addEventListener('click', () => { if (!isAnalysing) resetAll(); });
+  resetBtn.addEventListener('click', resetAll);
+
+  // ── Submit → start analysis job ───────────────────────────────────────────
+  submitBtn.addEventListener('click', async () => {
+    if (!currentUrl || isAnalysing) return;
+    isAnalysing = true;
+
+    // Lock the UI
+    input.disabled = true;
+    clearBtn.classList.remove('visible');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Starting analysis…';
+    setStatus('Connecting to backend…', 'loading');
+
+    try {
+      // POST /api/analyse
+      const res = await fetch(`${BACKEND_URL}/api/analyse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: currentUrl })
+      });
+
+      if (!res.ok) throw new Error(`Backend error ${res.status}`);
+      const { job_id } = await res.json();
+
+      // Show progress UI
+      submitBtn.classList.remove('visible');
+      progressBox.classList.add('visible');
+      setStatus('Analysis running…', 'loading');
+      startStepAnimation();
+
+      // Start polling
+      pollStatus(job_id);
+
+    } catch(err) {
+      setStatus(`Could not reach backend: ${err.message}`, 'error');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Analyse this restaurant →';
+      isAnalysing = false;
+      input.disabled = false;
+      clearBtn.classList.toggle('visible', currentUrl.length > 0);
+    }
+  });
+
+  // ── Polling ───────────────────────────────────────────────────────────────
+  function pollStatus(jobId) {
+    const started = Date.now();
+
+    async function check() {
+      try {
+        const res  = await fetch(`${BACKEND_URL}/api/status/${jobId}`);
+        if (!res.ok) throw new Error(`Status check failed: ${res.status}`);
+        const data = await res.json();
+
+        if (data.status === 'done') {
+          onJobDone(data.report_url);
+          return;
+        }
+
+        if (data.status === 'error') {
+          onJobError(data.error || 'Unknown error');
+          return;
+        }
+
+        // Still pending/running — check timeout then schedule next poll
+        if (Date.now() - started > POLL_TIMEOUT) {
+          onJobError('Analysis timed out — please try again');
+          return;
+        }
+
+        pollTimer = setTimeout(check, POLL_INTERVAL);
+
+      } catch(err) {
+        // Network blip — keep trying for up to timeout
+        if (Date.now() - started < POLL_TIMEOUT) {
+          pollTimer = setTimeout(check, POLL_INTERVAL);
+        } else {
+          onJobError('Lost connection to backend');
+        }
+      }
+    }
+
+    check();
+  }
+
+  function onJobDone(reportUrl) {
+    finishSteps();
+    progressBox.classList.remove('visible');
+
+    const placeName = previewName.textContent || 'Restaurant Report';
+    resultPlaceName.textContent = placeName;
+    resultLink.href = reportUrl;
+    resultBox.classList.add('visible');
+    setStatus('Report ready ✓', 'success');
+    isAnalysing = false;
+  }
+
+  function onJobError(message) {
+    clearTimeout(stepTimer);
+    progressBox.classList.remove('visible');
+    setStatus(`Analysis failed: ${message}`, 'error');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Retry →';
+    submitBtn.classList.add('visible');
+    isAnalysing = false;
+    input.disabled = false;
+    clearBtn.classList.toggle('visible', currentUrl.length > 0);
+  }
+</script>
+</body>
+</html>
