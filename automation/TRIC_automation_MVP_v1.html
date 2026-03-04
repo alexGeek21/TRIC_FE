@@ -247,7 +247,7 @@
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
   const BACKEND_URL    = 'https://tric-be-mvp-service-v1.onrender.com';
-  const GOOGLE_API_KEY = 'AIzaSyBjiS-HVJLYwz3eADiKRx3XbD8v2xlyvic'; // optional — for address/rating preview
+  const GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY'; // optional — for address/rating preview
   const POLL_INTERVAL  = 3000;  // ms between status polls
   const POLL_TIMEOUT   = 180000; // 3 min max wait
 
@@ -271,15 +271,14 @@
   let debounceTimer = null;
   let pollTimer     = null;
   let currentUrl    = '';
-  let placesService = null;
   let isAnalysing   = false;
 
-  // ── Google Places (optional — for real address/rating in preview) ─────────
+  // ── Google Places (New API — replaces deprecated PlacesService) ─────────
   function loadGoogleMapsSDK() {
     return new Promise((resolve, reject) => {
-      if (window.google && window.google.maps) { resolve(); return; }
+      if (window.google?.maps?.importLibrary) { resolve(); return; }
       const s = document.createElement('script');
-      s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&loading=async&libraries=places`;
       s.async = true;
       s.onload = resolve;
       s.onerror = reject;
@@ -287,32 +286,35 @@
     });
   }
 
-  function getPlacesService() {
-    if (!placesService) {
-      placesService = new google.maps.places.PlacesService(document.createElement('div'));
-    }
-    return placesService;
-  }
-
   async function fetchPlaceFromGoogle(name, coords) {
     await loadGoogleMapsSDK();
-    return new Promise((resolve, reject) => {
-      const req = {
-        query: name,
-        fields: ['name', 'formatted_address', 'rating', 'types'],
-        ...(coords && { locationBias: new google.maps.Circle({ center: coords, radius: 500 }) })
-      };
-      getPlacesService().findPlaceFromQuery(req, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results?.[0]) {
-          const p = results[0];
-          const skip = new Set(['point_of_interest','establishment','food']);
-          const type = (p.types||[]).find(t => !skip.has(t)) || 'place';
-          resolve({ name: p.name, address: p.formatted_address,
-                    rating: p.rating ? p.rating.toFixed(1) : null,
-                    type: type.replace(/_/g,' ') });
-        } else { reject(new Error(status)); }
-      });
-    });
+    const { Place } = await google.maps.importLibrary('places');
+
+    const request = {
+      textQuery: name,
+      fields: ['displayName', 'formattedAddress', 'rating', 'types'],
+      ...(coords && {
+        locationBias: {
+          center: new google.maps.LatLng(coords.lat, coords.lng),
+          radius: 500
+        }
+      }),
+      maxResultCount: 1,
+    };
+
+    const { places } = await Place.searchByText(request);
+    if (!places || places.length === 0) throw new Error('No results found');
+
+    const p = places[0];
+    const skip = new Set(['point_of_interest', 'establishment', 'food']);
+    const type = (p.types || []).find(t => !skip.has(t)) || 'place';
+
+    return {
+      name:    p.displayName,
+      address: p.formattedAddress,
+      rating:  p.rating ? p.rating.toFixed(1) : null,
+      type:    type.replace(/_/g, ' ')
+    };
   }
 
   // ── Status / UI helpers ───────────────────────────────────────────────────
