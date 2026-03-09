@@ -287,7 +287,6 @@
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
   const BACKEND_URL    = 'https://tric-be-mvp-service-v1.onrender.com';
-  const GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY'; // optional — for address/rating preview
   const POLL_INTERVAL  = 3000;  // ms between status polls
   const POLL_TIMEOUT   = 180000; // 3 min max wait
 
@@ -302,6 +301,7 @@
   const previewRating  = document.getElementById('preview-rating');
   const divider        = document.getElementById('divider');
   const windowSelect   = document.getElementById('window-select');
+  const submitBtn      = document.getElementById('submit-btn');
   const progressBox    = document.getElementById('progress-box');
   const resultBox      = document.getElementById('result-box');
   const resultLink     = document.getElementById('result-link');
@@ -314,46 +314,8 @@
   let placesService = null;
   let isAnalysing   = false;
 
-  // ── Google Places (optional — for real address/rating in preview) ─────────
-  function loadGoogleMapsSDK() {
-    return new Promise((resolve, reject) => {
-      if (window.google && window.google.maps) { resolve(); return; }
-      const s = document.createElement('script');
-      s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
-      s.async = true;
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
-  }
 
-  function getPlacesService() {
-    if (!placesService) {
-      placesService = new google.maps.places.PlacesService(document.createElement('div'));
-    }
-    return placesService;
-  }
 
-  async function fetchPlaceFromGoogle(name, coords) {
-    await loadGoogleMapsSDK();
-    return new Promise((resolve, reject) => {
-      const req = {
-        query: name,
-        fields: ['name', 'formatted_address', 'rating', 'types'],
-        ...(coords && { locationBias: new google.maps.Circle({ center: coords, radius: 500 }) })
-      };
-      getPlacesService().findPlaceFromQuery(req, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results?.[0]) {
-          const p = results[0];
-          const skip = new Set(['point_of_interest','establishment','food']);
-          const type = (p.types||[]).find(t => !skip.has(t)) || 'place';
-          resolve({ name: p.name, address: p.formatted_address,
-                    rating: p.rating ? p.rating.toFixed(1) : null,
-                    type: type.replace(/_/g,' ') });
-        } else { reject(new Error(status)); }
-      });
-    });
-  }
 
   // ── Status / UI helpers ───────────────────────────────────────────────────
   function setStatus(msg, type = '') {
@@ -465,13 +427,12 @@
     } catch(e) { return null; }
   }
 
-  // ── Preview lookup ────────────────────────────────────────────────────────
+  // ── Preview lookup — calls backend POST /api/preview ─────────────────────
   async function handleFullUrl(url) {
-    const name   = extractName(url);
-    const coords = extractCoords(url);
+    const name = extractName(url);
     if (!name) { setStatus('Could not read place name from this URL', 'error'); return; }
 
-    // Show name immediately
+    // Show name immediately while backend lookup runs
     previewName.textContent    = name;
     previewAddress.textContent = 'Looking up…';
     previewType.textContent    = '—';
@@ -480,21 +441,21 @@
     divider.style.display = 'block';
     submitBtn.classList.add('visible');
 
-    // If no API key configured, just show name and move on
-    if (GOOGLE_API_KEY === 'YOUR_GOOGLE_API_KEY') {
-      previewAddress.textContent = 'Add a Google API key for full preview';
-      setStatus('Place detected ✓', 'success');
-      return;
-    }
-
     setStatus('Fetching place details…', 'loading');
     try {
-      const data = await fetchPlaceFromGoogle(name, coords);
+      const res = await fetch(`${BACKEND_URL}/api/preview`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      if (!res.ok) throw new Error(`Preview failed: ${res.status}`);
+      const data = await res.json();
       showPreview(data);
       setStatus('Place confirmed ✓', 'success');
     } catch(err) {
+      // Backend unreachable — still allow submission with name only
       previewAddress.textContent = 'Preview unavailable';
-      setStatus('Place detected — preview limited (check API key)', '');
+      setStatus('Place detected ✓', 'success');
     }
   }
 
