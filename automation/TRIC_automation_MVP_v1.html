@@ -242,15 +242,14 @@
 
   </div>
 
-  <div class="footer">TRIC · Restaurant Intelligence · v0.2</div>
+  <div class="footer">TRIC · Restaurant Intelligence · v0.3</div>
 </div>
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const BACKEND_URL    = 'https://tric-be-mvp-service-v1.onrender.com';
-  const GOOGLE_API_KEY = 'AIzaSyBjiS-HVJLYwz3eADiKRx3XbD8v2xlyvic'; // optional — for address/rating preview
-  const POLL_INTERVAL  = 3000;  // ms between status polls
-  const POLL_TIMEOUT   = 180000; // 3 min max wait
+  const BACKEND_URL   = 'https://tric-be-mvp-service-v1.onrender.com';
+  const POLL_INTERVAL = 3000;   // ms between status polls
+  const POLL_TIMEOUT  = 180000; // 3 min max wait
 
   // ── DOM ───────────────────────────────────────────────────────────────────
   const input          = document.getElementById('maps-url');
@@ -274,52 +273,15 @@
   let currentUrl    = '';
   let isAnalysing   = false;
 
-  // ── Google Places (New API via traditional script load) ──────────────────
-  function loadGoogleMapsSDK() {
-    return new Promise((resolve, reject) => {
-      // Already loaded
-      if (window.google?.maps?.places?.Place) { resolve(); return; }
-      const s = document.createElement('script');
-      s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
-      s.async = true;
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
+  // ── Backend preview call ──────────────────────────────────────────────────
+  async function fetchPlaceFromBackend(url) {
+    const res = await fetch(`${BACKEND_URL}/api/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
     });
-  }
-
-  async function fetchPlaceFromGoogle(name, coords) {
-    await loadGoogleMapsSDK();
-
-    // Use the new Place class directly — no importLibrary needed
-    const Place = google.maps.places.Place;
-
-    const request = {
-      textQuery: name,
-      fields: ['displayName', 'formattedAddress', 'rating', 'userRatingCount', 'types'],
-      ...(coords && {
-        locationBias: {
-          center: new google.maps.LatLng(coords.lat, coords.lng),
-          radius: 500
-        }
-      }),
-      maxResultCount: 1,
-    };
-
-    const { places } = await Place.searchByText(request);
-    if (!places || places.length === 0) throw new Error('No results found');
-
-    const p = places[0];
-    const skip = new Set(['point_of_interest', 'establishment', 'food']);
-    const type = (p.types || []).find(t => !skip.has(t)) || 'place';
-
-    return {
-      name:        p.displayName,
-      address:     p.formattedAddress,
-      rating:      p.rating ? p.rating.toFixed(1) : null,
-      reviewCount: p.userRatingCount || null,
-      type:        type.replace(/_/g, ' ')
-    };
+    if (!res.ok) throw new Error(`Preview failed: ${res.status}`);
+    return await res.json(); // { name, address, rating, reviewCount, type }
   }
 
   // ── Status / UI helpers ───────────────────────────────────────────────────
@@ -412,7 +374,7 @@
     });
   }
 
-  // ── URL parsing ───────────────────────────────────────────────────────────
+  // ── URL validation ────────────────────────────────────────────────────────
   function isMapsUrl(s) {
     return s.includes('google.com/maps') || s.includes('maps.app.goo.gl') ||
            s.includes('maps.google.com') || s.includes('goo.gl/maps');
@@ -420,49 +382,33 @@
   function isShortUrl(s) {
     return s.includes('maps.app.goo.gl') || s.includes('goo.gl/maps');
   }
-  function extractName(url) {
-    try {
-      const m = url.match(/\/maps\/place\/([^/@?]+)/);
-      return m ? decodeURIComponent(m[1]).replace(/\+/g,' ') : null;
-    } catch(e) { return null; }
-  }
-  function extractCoords(url) {
-    try {
-      const m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-      return m ? { lat: parseFloat(m[1]), lng: parseFloat(m[2]) } : null;
-    } catch(e) { return null; }
-  }
 
-  // ── Preview lookup ────────────────────────────────────────────────────────
+  // ── Preview lookup (via backend) ──────────────────────────────────────────
   async function handleFullUrl(url) {
-    const name   = extractName(url);
-    const coords = extractCoords(url);
-    if (!name) { setStatus('Could not read place name from this URL', 'error'); return; }
-
-    // Show name immediately
-    previewName.textContent    = name;
-    previewAddress.textContent = 'Looking up…';
+    // Show skeleton preview with spinner immediately
+    previewName.textContent    = '—';
+    previewAddress.textContent = '';
     previewType.textContent    = '—';
     previewRating.textContent  = '—';
+    const reviewEl = document.getElementById('preview-reviews');
+    if (reviewEl) reviewEl.textContent = '';
     preview.classList.add('visible');
     divider.style.display = 'block';
-    submitBtn.classList.add('visible');
 
-    // If no API key configured, just show name and move on
-    if (GOOGLE_API_KEY === 'YOUR_GOOGLE_API_KEY') {
-      previewAddress.textContent = 'Add a Google API key for full preview';
-      setStatus('Place detected ✓', 'success');
-      return;
-    }
+    setStatus('', 'loading'); // spinner only, no text yet
+    // Show inline spinner inside the preview name slot while loading
+    previewName.innerHTML = '<span class="spinner" style="display:inline-block;vertical-align:middle;margin-right:6px;"></span><span style="color:var(--text-dim);font-size:0.85rem;">Looking up place…</span>';
 
-    setStatus('Fetching place details…', 'loading');
     try {
-      const data = await fetchPlaceFromGoogle(name, coords);
+      const data = await fetchPlaceFromBackend(url);
       showPreview(data);
+      submitBtn.classList.add('visible');
       setStatus('Place confirmed ✓', 'success');
     } catch(err) {
-      previewAddress.textContent = 'Preview unavailable';
-      setStatus('Place detected — preview limited (check API key)', '');
+      previewName.textContent    = 'Preview unavailable';
+      previewAddress.textContent = 'Could not fetch place details from backend';
+      setStatus('URL accepted — preview failed. You can still submit.', '');
+      submitBtn.classList.add('visible'); // still allow submission
     }
   }
 
