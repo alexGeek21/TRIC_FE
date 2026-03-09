@@ -239,6 +239,7 @@
       <div class="preview-meta">
         <span class="meta-item"><span class="meta-dot"></span><span id="preview-type">—</span></span>
         <span class="meta-item">⭐ <span id="preview-rating">—</span></span>
+        <span class="meta-item">💬 <span id="preview-reviews">—</span></span>
       </div>
     </div>
 
@@ -299,6 +300,7 @@
   const previewAddress = document.getElementById('preview-address');
   const previewType    = document.getElementById('preview-type');
   const previewRating  = document.getElementById('preview-rating');
+  const previewReviews = document.getElementById('preview-reviews');
   const divider        = document.getElementById('divider');
   const windowSelect   = document.getElementById('window-select');
   const submitBtn      = document.getElementById('submit-btn');
@@ -329,6 +331,7 @@
     previewAddress.textContent = data.address || 'Address not available';
     previewType.textContent    = data.type    || 'Place';
     previewRating.textContent  = data.rating  ? `${data.rating} / 5` : 'No rating';
+    previewReviews.textContent = data.reviewCount ? `${data.reviewCount.toLocaleString()} reviews` : 'No reviews';
     preview.classList.add('visible');
     divider.style.display = 'block';
     submitBtn.classList.add('visible');
