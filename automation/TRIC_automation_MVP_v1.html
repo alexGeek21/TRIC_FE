@@ -95,6 +95,33 @@
     .divider { height: 1px; background: var(--border); }
 
     /* Submit button */
+    /* ── Window selector ── */
+    .window-row {
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .window-select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 0.875rem;
+      font-size: 0.875rem;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.875rem center;
+      padding-right: 2.5rem;
+      transition: border-color var(--transition);
+    }
+    .window-select:focus  { border-color: var(--accent); }
+    .window-select:disabled { opacity: 0.5; cursor: not-allowed; }
+    .window-select option { background: #1a1a1a; color: var(--text); }
+
     .submit-btn {
       background: var(--accent); color: #0f0f0f; border: none; border-radius: 8px;
       padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 700;
@@ -189,6 +216,19 @@
       </div>
     </div>
 
+    <!-- Analysis window -->
+    <div class="window-row">
+      <label class="input-label" for="window-select">Analysis window</label>
+      <select class="window-select" id="window-select">
+        <option value="last_90_days">Last 90 days</option>
+        <option value="last_30_days">Last 30 days</option>
+        <option value="last_180_days">Last 180 days</option>
+        <option value="last_12_months">Last 12 months</option>
+        <option value="last_24_months">Last 24 months</option>
+        <option value="all">All time</option>
+      </select>
+    </div>
+
     <div class="status-line" id="status-line"></div>
 
     <!-- Place preview -->
@@ -199,7 +239,6 @@
       <div class="preview-meta">
         <span class="meta-item"><span class="meta-dot"></span><span id="preview-type">—</span></span>
         <span class="meta-item">⭐ <span id="preview-rating">—</span></span>
-        <span class="meta-item">💬 <span id="preview-reviews"></span></span>
       </div>
     </div>
 
@@ -242,14 +281,15 @@
 
   </div>
 
-  <div class="footer">TRIC · Restaurant Intelligence · v0.3</div>
+  <div class="footer">TRIC · Restaurant Intelligence · v0.2</div>
 </div>
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const BACKEND_URL   = 'https://tric-be-mvp-service-v1.onrender.com';
-  const POLL_INTERVAL = 3000;   // ms between status polls
-  const POLL_TIMEOUT  = 180000; // 3 min max wait
+  const BACKEND_URL    = 'https://tric-be-mvp-service-v1.onrender.com';
+  const GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY'; // optional — for address/rating preview
+  const POLL_INTERVAL  = 3000;  // ms between status polls
+  const POLL_TIMEOUT   = 180000; // 3 min max wait
 
   // ── DOM ───────────────────────────────────────────────────────────────────
   const input          = document.getElementById('maps-url');
@@ -261,6 +301,7 @@
   const previewType    = document.getElementById('preview-type');
   const previewRating  = document.getElementById('preview-rating');
   const divider        = document.getElementById('divider');
+  const windowSelect   = document.getElementById('window-select');
   const submitBtn      = document.getElementById('submit-btn');
   const progressBox    = document.getElementById('progress-box');
   const resultBox      = document.getElementById('result-box');
@@ -271,17 +312,48 @@
   let debounceTimer = null;
   let pollTimer     = null;
   let currentUrl    = '';
+  let placesService = null;
   let isAnalysing   = false;
 
-  // ── Backend preview call ──────────────────────────────────────────────────
-  async function fetchPlaceFromBackend(url) {
-    const res = await fetch(`${BACKEND_URL}/api/preview`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
+  // ── Google Places (optional — for real address/rating in preview) ─────────
+  function loadGoogleMapsSDK() {
+    return new Promise((resolve, reject) => {
+      if (window.google && window.google.maps) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_API_KEY}&libraries=places`;
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
     });
-    if (!res.ok) throw new Error(`Preview failed: ${res.status}`);
-    return await res.json(); // { name, address, rating, reviewCount, type }
+  }
+
+  function getPlacesService() {
+    if (!placesService) {
+      placesService = new google.maps.places.PlacesService(document.createElement('div'));
+    }
+    return placesService;
+  }
+
+  async function fetchPlaceFromGoogle(name, coords) {
+    await loadGoogleMapsSDK();
+    return new Promise((resolve, reject) => {
+      const req = {
+        query: name,
+        fields: ['name', 'formatted_address', 'rating', 'types'],
+        ...(coords && { locationBias: new google.maps.Circle({ center: coords, radius: 500 }) })
+      };
+      getPlacesService().findPlaceFromQuery(req, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results?.[0]) {
+          const p = results[0];
+          const skip = new Set(['point_of_interest','establishment','food']);
+          const type = (p.types||[]).find(t => !skip.has(t)) || 'place';
+          resolve({ name: p.name, address: p.formatted_address,
+                    rating: p.rating ? p.rating.toFixed(1) : null,
+                    type: type.replace(/_/g,' ') });
+        } else { reject(new Error(status)); }
+      });
+    });
   }
 
   // ── Status / UI helpers ───────────────────────────────────────────────────
@@ -296,8 +368,6 @@
     previewAddress.textContent = data.address || 'Address not available';
     previewType.textContent    = data.type    || 'Place';
     previewRating.textContent  = data.rating  ? `${data.rating} / 5` : 'No rating';
-    const reviewEl = document.getElementById('preview-reviews');
-    if (reviewEl) reviewEl.textContent = data.reviewCount ? `${data.reviewCount.toLocaleString()} reviews` : '';
     preview.classList.add('visible');
     divider.style.display = 'block';
     submitBtn.classList.add('visible');
@@ -359,6 +429,7 @@
     isAnalysing = false;
     input.value = '';
     input.disabled = false;
+    windowSelect.disabled = false;
     currentUrl = '';
     clearBtn.classList.remove('visible');
     hidePreview();
@@ -374,7 +445,7 @@
     });
   }
 
-  // ── URL validation ────────────────────────────────────────────────────────
+  // ── URL parsing ───────────────────────────────────────────────────────────
   function isMapsUrl(s) {
     return s.includes('google.com/maps') || s.includes('maps.app.goo.gl') ||
            s.includes('maps.google.com') || s.includes('goo.gl/maps');
@@ -382,33 +453,49 @@
   function isShortUrl(s) {
     return s.includes('maps.app.goo.gl') || s.includes('goo.gl/maps');
   }
+  function extractName(url) {
+    try {
+      const m = url.match(/\/maps\/place\/([^/@?]+)/);
+      return m ? decodeURIComponent(m[1]).replace(/\+/g,' ') : null;
+    } catch(e) { return null; }
+  }
+  function extractCoords(url) {
+    try {
+      const m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      return m ? { lat: parseFloat(m[1]), lng: parseFloat(m[2]) } : null;
+    } catch(e) { return null; }
+  }
 
-  // ── Preview lookup (via backend) ──────────────────────────────────────────
+  // ── Preview lookup ────────────────────────────────────────────────────────
   async function handleFullUrl(url) {
-    // Show skeleton preview with spinner immediately
-    previewName.textContent    = '—';
-    previewAddress.textContent = '';
+    const name   = extractName(url);
+    const coords = extractCoords(url);
+    if (!name) { setStatus('Could not read place name from this URL', 'error'); return; }
+
+    // Show name immediately
+    previewName.textContent    = name;
+    previewAddress.textContent = 'Looking up…';
     previewType.textContent    = '—';
     previewRating.textContent  = '—';
-    const reviewEl = document.getElementById('preview-reviews');
-    if (reviewEl) reviewEl.textContent = '';
     preview.classList.add('visible');
     divider.style.display = 'block';
+    submitBtn.classList.add('visible');
 
-    setStatus('', 'loading'); // spinner only, no text yet
-    // Show inline spinner inside the preview name slot while loading
-    previewName.innerHTML = '<span class="spinner" style="display:inline-block;vertical-align:middle;margin-right:6px;"></span><span style="color:var(--text-dim);font-size:0.85rem;">Looking up place…</span>';
+    // If no API key configured, just show name and move on
+    if (GOOGLE_API_KEY === 'YOUR_GOOGLE_API_KEY') {
+      previewAddress.textContent = 'Add a Google API key for full preview';
+      setStatus('Place detected ✓', 'success');
+      return;
+    }
 
+    setStatus('Fetching place details…', 'loading');
     try {
-      const data = await fetchPlaceFromBackend(url);
+      const data = await fetchPlaceFromGoogle(name, coords);
       showPreview(data);
-      submitBtn.classList.add('visible');
       setStatus('Place confirmed ✓', 'success');
     } catch(err) {
-      previewName.textContent    = 'Preview unavailable';
-      previewAddress.textContent = 'Could not fetch place details from backend';
-      setStatus('URL accepted — preview failed. You can still submit.', '');
-      submitBtn.classList.add('visible'); // still allow submission
+      previewAddress.textContent = 'Preview unavailable';
+      setStatus('Place detected — preview limited (check API key)', '');
     }
   }
 
@@ -448,6 +535,7 @@
     clearBtn.classList.remove('visible');
     submitBtn.disabled = true;
     submitBtn.textContent = 'Starting analysis…';
+    windowSelect.disabled = true;
     setStatus('Connecting to backend…', 'loading');
 
     try {
@@ -455,7 +543,7 @@
       const res = await fetch(`${BACKEND_URL}/api/analyse`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: currentUrl })
+        body: JSON.stringify({ url: currentUrl, window: windowSelect.value })
       });
 
       if (!res.ok) throw new Error(`Backend error ${res.status}`);
@@ -474,6 +562,7 @@
       setStatus(`Could not reach backend: ${err.message}`, 'error');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Analyse this restaurant →';
+      windowSelect.disabled = false;
       isAnalysing = false;
       input.disabled = false;
       clearBtn.classList.toggle('visible', currentUrl.length > 0);
@@ -540,6 +629,7 @@
     submitBtn.disabled = false;
     submitBtn.textContent = 'Retry →';
     submitBtn.classList.add('visible');
+    windowSelect.disabled = false;
     isAnalysing = false;
     input.disabled = false;
     clearBtn.classList.toggle('visible', currentUrl.length > 0);
