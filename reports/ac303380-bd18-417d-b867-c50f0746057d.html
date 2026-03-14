@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TRIC Report — Café Centrum</title>
+  <style>
+    :root {
+      --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#222;
+      --border:#2e2e2e; --accent:#c8a96e;
+      --text:#f0ece4; --muted:#888; --dim:#555;
+      --positive:#5a9e6f; --neutral:#c8a96e; --negative:#c0504a;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:'Inter','Helvetica Neue',sans-serif;
+          padding:2rem 1rem;}
+    .container{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:2rem}
+    .logo{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+    h1{font-size:1.6rem;font-weight:600;letter-spacing:-.02em;margin-top:.3rem}
+    .meta{font-size:.85rem;color:var(--muted);line-height:1.6}
+    .meta a{color:var(--accent);text-decoration:none}
+
+    /* ── Stats section ── */
+    .stats-section{display:flex;flex-direction:column;gap:1rem}
+    .stats-header{display:flex;align-items:center;justify-content:space-between}
+    .stats-title{font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+    .stats-window{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+                   color:var(--accent);background:rgba(200,169,110,.1);border:1px solid rgba(200,169,110,.25);
+                   padding:.2rem .6rem;border-radius:4px}
+
+    /* ── KPI strip ── */
+    .kpi-strip{display:flex;gap:1rem;flex-wrap:wrap}
+    .kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+          padding:.9rem 1.1rem;display:flex;flex-direction:column;gap:.2rem;flex:1;min-width:130px}
+    .kpi-positive{border-left:3px solid var(--positive)}
+    .kpi-negative{border-left:3px solid var(--negative)}
+    .kpi-label{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+    .kpi-value{font-size:1.5rem;font-weight:700;color:var(--accent)}
+    .kpi-sub{font-size:.7rem;color:var(--dim)}
+    .positive-text{color:var(--positive)}
+    .negative-text{color:var(--negative)}
+    .trend{font-size:.7rem;font-weight:600;padding:.15rem .4rem;border-radius:4px}
+    .trend.up  {color:var(--positive);background:rgba(90,158,111,.12)}
+    .trend.down{color:var(--negative);background:rgba(192,80,74,.12)}
+    .trend.flat{color:var(--muted);background:var(--surface2)}
+
+    /* ── Detail row (dist + lang) ── */
+    .detail-row{display:flex;gap:1rem;flex-wrap:wrap}
+    .detail-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+                  padding:1rem 1.25rem;flex:1;min-width:220px;display:flex;flex-direction:column;gap:.75rem}
+    .detail-title{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+    /* Star distribution */
+    .dist-bars{display:flex;flex-direction:column;gap:.4rem}
+    .dist-row{display:flex;align-items:center;gap:.6rem}
+    .dist-label{font-size:.75rem;color:var(--muted);width:1.8rem;flex-shrink:0}
+    .dist-bar-bg{flex:1;background:var(--surface2);border-radius:4px;height:8px;overflow:hidden}
+    .dist-bar-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .3s ease}
+    .dist-count{font-size:.72rem;color:var(--dim);width:2.2rem;text-align:right;flex-shrink:0}
+
+    /* Languages */
+    .lang-tags{display:flex;flex-wrap:wrap;gap:.4rem}
+    .lang-tag{font-size:.72rem;background:var(--surface2);border:1px solid var(--border);
+               border-radius:5px;padding:.2rem .55rem;color:var(--muted)}
+    .lang-tag b{color:var(--text)}
+    .lang-note{font-size:.68rem;color:var(--dim);padding:.15rem .4rem}
+    .first-response{font-size:.75rem;color:var(--dim);margin-top:.25rem}
+    .first-response b{color:var(--muted)}
+
+    /* ── Divider between stats and reviews ── */
+    .section-divider{border:none;border-top:1px solid var(--border);margin:.5rem 0}
+    .section-heading{font-size:.68rem;font-weight:700;letter-spacing:.15em;
+                      text-transform:uppercase;color:var(--muted)}
+
+    /* ── Review cards (UNCHANGED) ── */
+    .reviews-list{display:flex;flex-direction:column;gap:1rem}
+    .review{background:var(--surface);border:1px solid var(--border);
+             border-radius:10px;padding:1rem 1.25rem;border-left:3px solid var(--border)}
+    .review.positive{border-left-color:var(--positive)}
+    .review.neutral {border-left-color:var(--neutral)}
+    .review.negative{border-left-color:var(--negative)}
+    .review-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;flex-wrap:wrap}
+    .author{font-weight:600;font-size:.875rem}
+    .stars{color:var(--accent);letter-spacing:.05em;font-size:.9rem}
+    .date{font-size:.75rem;color:var(--dim);margin-left:auto}
+    .review-text{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+    .footer{text-align:center;font-size:.72rem;color:var(--dim);padding-top:1rem;border-top:1px solid var(--border)}
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div>
+    <span class="logo">TRIC</span>
+    <h1>Café Centrum</h1>
+    <p class="meta">
+      <br/>
+      <a href="https://www.google.com/maps/place/Caf%C3%A9+Centrum/@47.8939639,13.1233497,17z/data=!3m1!4b1!4m6!3m5!1s0x47769c0dddb9337f:0x6e8f2e43d9e4ea6c!8m2!3d47.8939603!4d13.1259246!16s%2Fg%2F1tdyv5n7?entry=ttu&g_ep=EgoyMDI2MDMxMC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">View on Google Maps ↗</a>
+    </p>
+  </div>
+
+  <!-- KPI / Stats section -->
+  
+  <!-- ── Stats section ─────────────────────────────────────────────── -->
+  <div class="stats-section">
+
+    <div class="stats-header">
+      <span class="stats-title">Intelligence Summary</span>
+      <span class="stats-window">Last 90 days</span>
+    </div>
+
+    <!-- Row 1: Volume + Ratings -->
+    <div class="kpi-strip">
+      <div class="kpi">
+        <span class="kpi-label">Reviews (window)</span>
+        <span class="kpi-value">2</span>
+        <span class="kpi-sub">of 148 all-time</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Avg Rating (window)</span>
+        <span class="kpi-value">4.50</span>
+        <span class="trend flat">= same as all-time</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Avg Rating (all-time)</span>
+        <span class="kpi-value">4.50</span>
+        <span class="kpi-sub">★★★★☆</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Owner Response Rate</span>
+        <span class="kpi-value">0.0%</span>
+        <span class="kpi-sub">all-time: 4.0%</span>
+      </div>
+    </div>
+
+    <!-- Row 2: Sentiment + Engagement -->
+    <div class="kpi-strip">
+      <div class="kpi kpi-positive">
+        <span class="kpi-label">Positive (4–5★)</span>
+        <span class="kpi-value positive-text">100.0%</span>
+        <span class="kpi-sub">all-time: 88.5%</span>
+      </div>
+      <div class="kpi kpi-negative">
+        <span class="kpi-label">Negative (1–2★)</span>
+        <span class="kpi-value negative-text">0.0%</span>
+        <span class="kpi-sub">all-time: 2.7%</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Local Guides</span>
+        <span class="kpi-value">0.0%</span>
+        <span class="kpi-sub">0 reviewers</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Reviews with Text</span>
+        <span class="kpi-value">41.2%</span>
+        <span class="kpi-sub">avg 79.0 reviews/user</span>
+      </div>
+    </div>
+
+    <!-- Row 3: Star distribution + Languages side by side -->
+    <div class="detail-row">
+
+      <div class="detail-card">
+        <div class="detail-title">Star Distribution (all-time)</div>
+        <div class="dist-bars">
+          <div class="dist-row">
+            <span class="dist-label">5★</span>
+            <div class="dist-bar-bg">
+              <div class="dist-bar-fill" style="width:66.2%"></div>
+            </div>
+            <span class="dist-count">98</span>
+          </div>
+          <div class="dist-row">
+            <span class="dist-label">4★</span>
+            <div class="dist-bar-bg">
+              <div class="dist-bar-fill" style="width:22.3%"></div>
+            </div>
+            <span class="dist-count">33</span>
+          </div>
+          <div class="dist-row">
+            <span class="dist-label">3★</span>
+            <div class="dist-bar-bg">
+              <div class="dist-bar-fill" style="width:8.8%"></div>
+            </div>
+            <span class="dist-count">13</span>
+          </div>
+          <div class="dist-row">
+            <span class="dist-label">2★</span>
+            <div class="dist-bar-bg">
+              <div class="dist-bar-fill" style="width:0.7%"></div>
+            </div>
+            <span class="dist-count">1</span>
+          </div>
+          <div class="dist-row">
+            <span class="dist-label">1★</span>
+            <div class="dist-bar-bg">
+              <div class="dist-bar-fill" style="width:2.0%"></div>
+            </div>
+            <span class="dist-count">3</span>
+          </div></div>
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-title">Language Breakdown (all-time)</div>
+        <div class="lang-tags"><span class="lang-tag">de <b>87.8%</b></span><span class="lang-tag">en <b>4.1%</b></span><span class="lang-tag">cs <b>2.0%</b></span><span class="lang-tag">et <b>2.0%</b></span><span class="lang-tag">ro <b>2.0%</b></span><span class="lang-note">+ 99 star-only (no text)</span></div>
+        <div class="first-response">
+          First owner response: <b>2018-03-16</b>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- ── End stats section ─────────────────────────────────────────── -->
+
+
+  <!-- Reviews -->
+  <hr class="section-divider"/>
+  <span class="section-heading">Individual Reviews (148 scraped)</span>
+  <div class="reviews-list">
+    
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Μιχάλης κοντός</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">02/07/2020 17:54:52</span>
+          </div>
+          <p class="review-text">Very good coffee☕</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Heshantha CA</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">12/25/2024 21:31:16</span>
+          </div>
+          <p class="review-text">Love this place 🤩</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Slavko Vorobeľ</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/04/2023 14:43:29</span>
+          </div>
+          <p class="review-text">Super.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Dorian W</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">01/27/2020 14:47:37</span>
+          </div>
+          <p class="review-text">Nice</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Jens Meckel</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/01/2023 16:42:49</span>
+          </div>
+          <p class="review-text">Wir sind absolut begeistert! Der Inhaber bot uns einen äußerst freundlichen Service und die Speisekarte hat uns auch beeindruckt. Abgesehen von ihrer unterhaltsamen Präsentation gibt es eine breite Auswahl für jeden Geschmack, sei es Essen, Kaffee, Kuchen oder ein gemütliches Getränk. Die Preise sind zudem angemessen. Wir haben diesen Ort erst kürzlich zufällig gefunden. Was für eine angenehme Überraschung! Wir freuen uns auf viele weitere Besuche.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Markus Arming</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">11/03/2025 11:35:12</span>
+          </div>
+          <p class="review-text">Immer wieder gerne dort,  sehr freundlich und gemütlich.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Hannes Mösl</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/17/2025 16:39:29</span>
+          </div>
+          <p class="review-text">Super Lokal, sehr gutes Ambiente,  freundliches Personal und kompetenter Chef. Immer gerne wieder!</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Manfred Pohler</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">10/12/2020 18:10:50</span>
+          </div>
+          <p class="review-text">Nur begeistert. Sehr freundliche Bedienung (Inhaber) und auch die Karte kann was. Abgesehen von der unterhaltsamen Aufmachung ist auch beim Angebot wirklich für jeden was zu finden. Egal ob Essen, Kaffee, Kuchen oder ein netter Drink - man findet was. Die Preise sind auch in Ordnung. Haben das Lokal erst vor kurzem durch Zufall entdeckt. Wir wollten am späteren Abend noch irgendwo was trinke gehen und dachten - Kaffeehaus ist besser als gar nichts. Welche Überraschung! Wir sehen uns sicher noch oft wieder.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Silvia Sommer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">01/08/2025 00:05:41</span>
+          </div>
+          <p class="review-text">Sehr schönes Lokal, Café Bar in Seekirchen Nähe Bahnhof. 14h - 22h  Tolles Ambiente, sehr freundliche Inhaber, gutes Essen, alles Bestens. Komme sehr gerne wieder.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Gerdi Grosse</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">02/11/2024 00:09:39</span>
+          </div>
+          <p class="review-text">Essen weiß ich nicht,, ABER !!! Verdammt nettes Lokal!! Sei es für nen netten Nachmittag, im Winter wie im Sommer... und wer abends was abfeiern will, ist dies wirklich die 1.Adresse in Seekirchen am Wallersee.. Für mich sehr symphatische Betreiber mit Lust an dem was sie tun!!! Danke Robert und Jasmin !! Weiter so 👍</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Ulrich Mack</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">04/17/2023 12:01:05</span>
+          </div>
+          <p class="review-text">Zur Café-Zeit 15 war das verabredete aber nicht vor reservierte Ziel voll und in Gehweite das Café Centrum uns die willkommene Alternative. Es ermöglichte uns, gut gepolstert, akustisch ungestört, längeres Wiedersehen, neben Süßem oder Pikantem für das leibliche Wohl.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Robert Unterweger</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">10/18/2022 02:37:53</span>
+          </div>
+          <p class="review-text">Ich bin sehr zufrieden und gehe immer wieder gerne ins Café, spitzen Eis Qualität und abends sehr gute Musik, verbunden mit viel Spass, beim essen gibt es auch von kleinem Hunger bis zu Pizza einiges, probiert es einfach aus, kann man nur empfehlen.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Michael Hein</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">10/28/2023 15:18:35</span>
+          </div>
+          <p class="review-text">Wir hatten Glück letzte Woche draußen einen Tisch zubekommen,..der Gastgarten liegt zur Durchfahrtsstraße, dennoch sehr gut besucht!,..teilweise ist es laut, aber zum Aushalten!</p>
+        </div>
+        <div class="review negative">
+          <div class="review-header">
+            <span class="author">Thomas Eder</span>
+            <span class="stars">★☆☆☆☆</span>
+            <span class="date">05/20/2025 17:04:18</span>
+          </div>
+          <p class="review-text">Gräslicher anstrich, bedienung r. Schlecht, und unhöflich</p>
+        </div>
+        <div class="review negative">
+          <div class="review-header">
+            <span class="author">Hannes</span>
+            <span class="stars">★☆☆☆☆</span>
+            <span class="date">06/17/2019 18:39:39</span>
+          </div>
+          <p class="review-text">Ich war mit meiner Tanzpartnerin in diesem Kaffeehaus - zunächst sah man  auf der ersten Seite der Speisekarte ausländerfeindliche Witze... ich wollte Lokal wechseln. Wir schlagen die nächste Seite auf, da wurde es sexistisch. Dann sagte meine Tanzpartnerin: "OK, doch Lokalwechsel" - wir gingen dann zum Moser und fühlten uns dort sehr wohl.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Steve</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">11/26/2022 18:32:22</span>
+          </div>
+          <p class="review-text">Das ist immer die letzte Haltestelle falls nichts mehr geht hatte da schon paar mal nen guten Vollsuff Personal ist top und preislich auch super. Immer wieder gern!</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">vendetta</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">02/17/2021 10:58:54</span>
+          </div>
+          <p class="review-text">Ich gehe gerne mit Freunden hin, da die Mitarbeiter sehr nett sind und die Preise nicht so hoch. Außerdem ist die Atmosphäre sehr schön und angenehm.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Ernst Niederer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/17/2023 09:22:42</span>
+          </div>
+          <p class="review-text">Ein tolles Lokal , zum Herausensitzen, Chillen...das kann was.
+..da geht man gerne hin 💖💖💖</p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Christian w</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">01/06/2018 21:07:13</span>
+          </div>
+          <p class="review-text">Angenehm nette Bedienung, wer es plüschig mag. Mir ist zuviel Dekoration da. Preise gehen noch.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Ferdinand Berer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/30/2023 15:58:36</span>
+          </div>
+          <p class="review-text">Schönes Kaffeehaus freundlich und nett kann man weiterempfehlen</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Thomas Sieler</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">04/15/2023 22:42:15</span>
+          </div>
+          <p class="review-text">Kaffee mit Familienanschluß 😺. Sehr leckerer Kuchen, super Service</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Johannes Joe</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/21/2017 11:16:53</span>
+          </div>
+          <p class="review-text">Habe so manche nacht verbracht, aber seit ich weggezogen bin bin ich eher  selten da. Gut für  Junge Leute.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Elsbeth Burkart</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/21/2021 17:55:26</span>
+          </div>
+          <p class="review-text">Schönes Ambiente. Die Zeitung ist der Hammer, toll. Grosses Kompliment!</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">K. S.</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">03/16/2018 17:58:04</span>
+          </div>
+          <p class="review-text">Bald Renovierungsarbeiten nötig, aber gemütlich,  freundliche Inhaber,  sehr nettes Lokal</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Alfred Kummer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">11/13/2022 17:48:11</span>
+          </div>
+          <p class="review-text">Ein wirklich Schönes Caffeehaus im Zentrum Seekirchen.Und man fühlt sich da Wohl</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Lucas Fuchs</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/13/2022 21:12:44</span>
+          </div>
+          <p class="review-text">Ich war überrascht wie gut das Eis bzw die Eiscreme war! Top!</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Der Fleischer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/03/2018 15:42:39</span>
+          </div>
+          <p class="review-text">Is scho nice dort, chef is chillig und bier is koid, wos braucht ma mehr.?</p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">kh2 bend</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">07/13/2018 15:01:34</span>
+          </div>
+          <p class="review-text">Nichts besonderes, sehr laut durch viele mopeds und Motorräder, offensichtlich interessiert es die Polizei in seekirchen nicht</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Josef Vorhauer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/17/2022 19:36:56</span>
+          </div>
+          <p class="review-text">Ganz toll
+Gerne wieder  .
+5 Sterne sind zuwenig</p>
+        </div>
+        <div class="review negative">
+          <div class="review-header">
+            <span class="author">Gipsy Stallion</span>
+            <span class="stars">★★☆☆☆</span>
+            <span class="date">11/13/2017 14:26:43</span>
+          </div>
+          <p class="review-text">Schwache Bedienung. Eis war sehr gut und der Cafe auch.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Alena Rejmonová</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">09/03/2023 09:28:16</span>
+          </div>
+          <p class="review-text">Pizza mražená, káva výborná, krásné místo</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">C. P.</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">05/01/2024 06:01:13</span>
+          </div>
+          <p class="review-text">Schön gelegen, gut besucht</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Marianne Pachler</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">08/10/2022 15:18:59</span>
+          </div>
+          <p class="review-text">Sehr nette Bedienung gutet Kaffee</p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Sigrid Pilz</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">04/03/2023 06:46:57</span>
+          </div>
+          <p class="review-text">Mitarbeiterin bemüht, das Lokal selbst...naja....</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Gabriel Florea</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/14/2020 19:23:15</span>
+          </div>
+          <p class="review-text">O cafenea drăguță situată într-un loc liniștit. Recomand.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Hannes Tischlinger</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">03/31/2019 07:09:12</span>
+          </div>
+          <p class="review-text">Bestes service sehr freundliche Bedienung mit Spaß</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Marianne Stolz</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">03/06/2018 20:24:39</span>
+          </div>
+          <p class="review-text">Die gesamte Familie  die im cafe centrum arbeitet  sind sehr höflich</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Maik derechte</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">04/11/2023 00:58:48</span>
+          </div>
+          <p class="review-text">Is a Institution bei uns in Seekirchen! Zaht ma einfach</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Carsten Schrödel</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/24/2023 10:30:01</span>
+          </div>
+          <p class="review-text">Wir haben einen wunderschönen Abend  hier verbracht.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Felix Kraihammer</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">06/29/2017 19:10:11</span>
+          </div>
+          <p class="review-text">Der Platz eignet sich bestens, seinen Aperol zu genießen</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Wolfgang KM</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">05/28/2019 06:37:11</span>
+          </div>
+          <p class="review-text">Sehr nettes und gemütliches Cafe</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Jahmal Pferde</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">12/24/2017 15:01:31</span>
+          </div>
+          <p class="review-text">Sehr nettes Lokal im Herzen von Seekirchen.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">robert kriechhammer</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">06/21/2017 16:33:34</span>
+          </div>
+          <p class="review-text">Gemütlich  immer noch wie früher</p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Juergen Weis</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">09/14/2019 15:47:00</span>
+          </div>
+          <p class="review-text">Sehr angenehmes Ambiente</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Engelbert Egger</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">01/14/2019 16:30:18</span>
+          </div>
+          <p class="review-text">Gute Bedienung und guter Service</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Manu Mayer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/12/2018 01:49:42</span>
+          </div>
+          <p class="review-text">Eis ist sehr gut</p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Werner Muenzner</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">08/19/2017 07:07:37</span>
+          </div>
+          <p class="review-text">mittelmäßiges Cafe, schlechte Öffnungszeiten</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">W W</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/15/2021 17:36:44</span>
+          </div>
+          <p class="review-text">Ein Traum</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Monika Utner</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">11/17/2019 02:09:12</span>
+          </div>
+          <p class="review-text">Einfach perfekt</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">T H</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">01/11/2026 10:30:52</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">hermann messner</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">10/26/2018 18:16:52</span>
+          </div>
+          <p class="review-text">Alles super</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Gabriele Pirnus</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/25/2022 14:23:57</span>
+          </div>
+          <p class="review-text">Wieder super</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Gerald Stocker</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">06/29/2017 02:24:45</span>
+          </div>
+          <p class="review-text">Zum Wohlfühlen</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Renous Mariasi</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/29/2018 20:00:37</span>
+          </div>
+          <p class="review-text">Vynikajici kava</p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Radivoje Nikolic</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">05/03/2018 18:20:29</span>
+          </div>
+          <p class="review-text">Male porcije.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">johann koopmann</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">10/15/2021 11:04:20</span>
+          </div>
+          <p class="review-text">Super</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Johannes Bann</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">11/10/2019 17:15:29</span>
+          </div>
+          <p class="review-text">Spitze</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Manuela Hödl</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/17/2021 15:38:28</span>
+          </div>
+          <p class="review-text">Herrlich 😉</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Manfred Kiefl</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">02/14/2020 14:45:14</span>
+          </div>
+          <p class="review-text">Nett</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Reinhard Putz</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/23/2019 18:17:57</span>
+          </div>
+          <p class="review-text">Wunderbar, und zack zack zack</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Robert Hoegler</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">10/12/2024 01:35:32</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Peter Melcher</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">08/28/2024 13:38:15</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">The Keto Surfer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/09/2024 17:12:34</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Angelika Zankl</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/29/2023 20:54:38</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Ingeborg Tiefenbacher</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">03/10/2023 18:58:38</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Herbert Ablinger</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/29/2021 11:22:49</span>
+          </div>
+          <p class="review-text">Stammlokal</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Gottfried</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">03/07/2026 23:27:28</span>
+          </div>
+          <p class="review-text">Die Bedienung sehr freundlich, nettes Lokal.</p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Dawn Warner-Stemeseder</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/20/2025 16:36:10</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">michi riada</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/16/2025 20:13:09</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Gerhard Gschaider</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">08/11/2025 11:02:55</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">jeny savvaki</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">03/10/2025 11:08:52</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Sandra Schobert</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">02/17/2024 06:23:40</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Markus Janka</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">12/28/2022 12:32:58</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Christoph Hufnagl</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">07/14/2022 19:59:48</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">A. Steinhauser</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/05/2022 15:32:05</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Armin Feukic</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">07/02/2022 14:46:41</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Roland Schwarz</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">04/08/2022 13:32:51</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Ronald Hinterbichler</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">03/26/2022 15:30:38</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Leonore Karl</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">01/05/2022 10:17:12</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Alois Harasek</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">11/13/2021 15:17:33</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Tanja Steidl-Schmidt</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">11/11/2021 13:48:16</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Harry Stockinger</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">10/05/2021 14:32:41</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Andreas Kostenzer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/18/2021 16:15:44</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Sandro Lechner</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/25/2021 16:42:17</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Berni Kohout</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/28/2021 13:36:54</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Gerald Cocron</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/19/2021 03:42:01</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Elisabeth Kalajdjieva</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">06/15/2021 03:47:54</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Barbara Grünsteidl</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/12/2021 16:28:08</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Kurt Kaltenbrunner</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/09/2021 04:34:49</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Lars Larsen</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/05/2021 16:28:19</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Bernhard Schwaighofer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">10/26/2020 16:46:00</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Helmut Karl</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/23/2020 08:55:45</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Markus Lemberger</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">09/08/2020 17:26:14</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Manfred Leitner</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">08/26/2020 13:45:51</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Günter Schäfer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/19/2020 22:33:37</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Lisa</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">08/07/2020 16:35:24</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review negative">
+          <div class="review-header">
+            <span class="author">Jane Doe</span>
+            <span class="stars">★☆☆☆☆</span>
+            <span class="date">06/28/2020 02:36:40</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Gerhard360</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/25/2020 15:40:34</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Helga Doppelmeier</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">01/20/2020 19:32:58</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Chris Bauer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">12/24/2019 04:53:22</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Walter Artbauer</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">12/01/2019 17:37:04</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Sandra Lechner</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">11/10/2019 10:34:49</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Maxi</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">11/06/2019 21:21:17</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Viviana Mero</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">11/03/2019 13:38:53</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Josef Gasser</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">10/23/2019 15:57:25</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Martin Enthammer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/18/2019 12:48:13</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Vladimír Fryčák</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">09/17/2019 16:33:13</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Martin Sirtl</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/09/2019 16:06:29</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Robert Fink</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/02/2019 16:03:11</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Roman Hudak</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/22/2019 10:57:20</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Sieglinde Moser</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/30/2019 10:29:24</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Michael Hofmann</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/28/2019 06:47:02</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Thomas Schwaighofer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/25/2019 21:46:21</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Robert Sandmayr</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/24/2019 10:18:04</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Daniel Eder</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/11/2019 19:51:43</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Filip Smoljan</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">06/23/2019 19:41:30</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Andi Aigenstuhler</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/07/2019 14:25:17</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Danielle Baumgartner</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/29/2019 19:00:14</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Martina Praehauser</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/06/2019 18:13:53</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Wolfgang Schmid</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/06/2019 07:55:54</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">christoph brandstätter</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/01/2019 21:18:14</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">David Haselberger</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">03/22/2019 22:40:48</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Simone Wögerbauer</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">03/17/2019 00:39:03</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Falko Jeske</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">03/16/2019 00:22:26</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Imre Mozga</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">03/09/2019 01:26:30</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Sabine Unger</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">12/31/2018 14:21:09</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Richard Ebner</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">12/28/2018 05:13:15</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Gertrud Wintersteller</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">12/12/2018 11:38:07</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Margit Schwarz</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/16/2018 16:49:52</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">bianca gensluckner</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">09/09/2018 00:03:17</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Susanna Pleininger</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/29/2018 08:37:43</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Niro02</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">07/19/2018 20:42:15</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Mayramesa Hernandez</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/21/2018 22:14:04</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Manuel Kellermair</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/18/2018 08:40:40</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Michael Rieder</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">01/03/2018 17:19:22</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Christian hörl</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">12/26/2017 13:42:24</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Anneliese Ginzinger</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">10/14/2017 16:52:04</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Jochen</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">09/10/2017 13:52:42</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Jeannine Glieder</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">08/27/2017 09:35:34</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review neutral">
+          <div class="review-header">
+            <span class="author">Claudia Schneeweiss</span>
+            <span class="stars">★★★☆☆</span>
+            <span class="date">08/18/2017 12:11:58</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Johannes Siebenbrücken</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">07/11/2017 21:49:43</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Johann Koopmann</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">06/21/2017 13:39:57</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Roland Link</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">06/20/2017 15:03:46</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Johann Berner</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">06/04/2017 02:27:00</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Daniel Wegscheider</span>
+            <span class="stars">★★★★☆</span>
+            <span class="date">05/21/2017 08:17:19</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Josef Mösl</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">05/06/2017 14:33:59</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Fulex</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">04/22/2017 20:24:41</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+        <div class="review positive">
+          <div class="review-header">
+            <span class="author">Christine S.</span>
+            <span class="stars">★★★★★</span>
+            <span class="date">12/20/2016 14:00:17</span>
+          </div>
+          <p class="review-text"><em>No text provided</em></p>
+        </div>
+  </div>
+
+  <div class="footer">
+    Generated by TRIC · 12 March 2026, 19:16 UTC
+  </div>
+
+</div>
+</body>
+</html>
