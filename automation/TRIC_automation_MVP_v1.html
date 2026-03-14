@@ -328,32 +328,30 @@
     }
   }
 
-  // Infer progress from job status for the step indicators.
-  // Steps 1-3 are animated by time (we only get pending/running/done from the API).
+  // Step 1 starts active immediately; steps 2-3 are advanced by applyStep()
+  // which is called every poll cycle using the real step value from the backend.
   // Step 4 (GitHub Pages activation) is driven by a real HTTP readiness check.
-  let stepTimer = null;
   function startStepAnimation() {
     setStep('step-scraping',   'icon-scraping',   'active');
     setStep('step-building',   'icon-building',   'idle');
     setStep('step-publishing', 'icon-publishing', 'idle');
     setStep('step-activating', 'icon-activating', 'idle');
+  }
 
-    // After ~40s assume scraping done (250 reviews with sort=newest typically takes 30-60s)
-    stepTimer = setTimeout(() => {
-      setStep('step-scraping', 'icon-scraping', 'done');
-      setStep('step-building', 'icon-building', 'active');
-
-      // Building is near-instant — move to publishing after 3s
-      setTimeout(() => {
-        setStep('step-building',   'icon-building',   'done');
-        setStep('step-publishing', 'icon-publishing', 'active');
-        // Step 3 stays active until onJobDone() fires (real backend signal)
-      }, 3000);
-    }, 40000);
+  // Map a backend step name to the correct UI state for steps 1-3.
+  // Steps before the current one are marked done; current is active; rest idle.
+  function applyStep(step) {
+    const order = ['scraping', 'building', 'publishing'];
+    const idx = order.indexOf(step);
+    if (idx < 0) return;  // unknown step — leave UI as-is
+    order.forEach((s, i) => {
+      const uiState = i < idx ? 'done' : (i === idx ? 'active' : 'idle');
+      setStep(`step-${s}`, `icon-${s}`, uiState);
+    });
+    setStep('step-activating', 'icon-activating', 'idle');  // step 4 always idle here
   }
 
   function finishSteps() {
-    clearTimeout(stepTimer);
     setStep('step-scraping',   'icon-scraping',   'done');
     setStep('step-building',   'icon-building',   'done');
     setStep('step-publishing', 'icon-publishing', 'done');
@@ -362,7 +360,6 @@
 
   function resetAll() {
     clearTimeout(pollTimer);
-    clearTimeout(stepTimer);
     clearTimeout(pagesTimer);
     isAnalysing = false;
     input.value = '';
@@ -526,6 +523,9 @@
           return;
         }
 
+        // Advance step indicators using the real backend step signal
+        if (data.step) applyStep(data.step);
+
         // Still pending/running — check timeout then schedule next poll
         if (Date.now() - started > POLL_TIMEOUT) {
           onJobError('Analysis timed out — please try again');
@@ -549,7 +549,6 @@
 
   function onJobDone(reportUrl) {
     // Backend is done — mark steps 1-3 complete and start the Pages readiness check
-    clearTimeout(stepTimer);
     setStep('step-scraping',   'icon-scraping',   'done');
     setStep('step-building',   'icon-building',   'done');
     setStep('step-publishing', 'icon-publishing', 'done');
@@ -604,7 +603,6 @@
   }
 
   function onJobError(message) {
-    clearTimeout(stepTimer);
     progressBox.classList.remove('visible');
     setStatus(`Analysis failed: ${message}`, 'error');
     submitBtn.disabled = false;
