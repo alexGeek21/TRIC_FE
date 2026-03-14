@@ -95,33 +95,6 @@
     .divider { height: 1px; background: var(--border); }
 
     /* Submit button */
-    /* ── Window selector ── */
-    .window-row {
-      display: flex; flex-direction: column; gap: 0.5rem;
-    }
-    .window-select {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 0.875rem;
-      font-size: 0.875rem;
-      color: var(--text);
-      font-family: inherit;
-      outline: none;
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.875rem center;
-      padding-right: 2.5rem;
-      transition: border-color var(--transition);
-    }
-    .window-select:focus  { border-color: var(--accent); }
-    .window-select:disabled { opacity: 0.5; cursor: not-allowed; }
-    .window-select option { background: #1a1a1a; color: var(--text); }
-
     .submit-btn {
       background: var(--accent); color: #0f0f0f; border: none; border-radius: 8px;
       padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 700;
@@ -216,18 +189,7 @@
       </div>
     </div>
 
-    <!-- Analysis window -->
-    <div class="window-row">
-      <label class="input-label" for="window-select">Analysis window</label>
-      <select class="window-select" id="window-select">
-        <option value="last_90_days">Last 90 days</option>
-        <option value="last_30_days">Last 30 days</option>
-        <option value="last_180_days">Last 180 days</option>
-        <option value="last_12_months">Last 12 months</option>
-        <option value="last_24_months">Last 24 months</option>
-        <option value="all">All time</option>
-      </select>
-    </div>
+
 
     <div class="status-line" id="status-line"></div>
 
@@ -302,7 +264,6 @@
   const previewRating  = document.getElementById('preview-rating');
   const previewReviews = document.getElementById('preview-reviews');
   const divider        = document.getElementById('divider');
-  const windowSelect   = document.getElementById('window-select');
   const submitBtn      = document.getElementById('submit-btn');
   const progressBox    = document.getElementById('progress-box');
   const resultBox      = document.getElementById('result-box');
@@ -393,7 +354,7 @@
     isAnalysing = false;
     input.value = '';
     input.disabled = false;
-    windowSelect.disabled = false;
+
     currentUrl = '';
     clearBtn.classList.remove('visible');
     hidePreview();
@@ -498,7 +459,7 @@
     clearBtn.classList.remove('visible');
     submitBtn.disabled = true;
     submitBtn.textContent = 'Starting analysis…';
-    windowSelect.disabled = true;
+
     setStatus('Connecting to backend…', 'loading');
 
     try {
@@ -506,7 +467,7 @@
       const res = await fetch(`${BACKEND_URL}/api/analyse`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: currentUrl, window: windowSelect.value })
+        body: JSON.stringify({ url: currentUrl, window: "all" })
       });
 
       if (!res.ok) throw new Error(`Backend error ${res.status}`);
@@ -525,7 +486,7 @@
       setStatus(`Could not reach backend: ${err.message}`, 'error');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Analyse this restaurant →';
-      windowSelect.disabled = false;
+
       isAnalysing = false;
       input.disabled = false;
       clearBtn.classList.toggle('visible', currentUrl.length > 0);
@@ -592,7 +553,7 @@
     submitBtn.disabled = false;
     submitBtn.textContent = 'Retry →';
     submitBtn.classList.add('visible');
-    windowSelect.disabled = false;
+
     isAnalysing = false;
     input.disabled = false;
     clearBtn.classList.toggle('visible', currentUrl.length > 0);
