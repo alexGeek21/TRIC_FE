@@ -1,0 +1,2668 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRIC Report — Regina Margherita</title>
+<style>
+  :root {
+    --black:#0f0f0f;--gold:#C9A84C;--gold-light:#f5e9c8;--cream:#fafaf8;
+    --white:#ffffff;--grey-100:#f4f4f2;--grey-200:#e8e8e4;--grey-300:#d0d0ca;
+    --grey-500:#888880;--grey-700:#444440;
+    --green:#1a5e38;--green-light:#e8f4ee;--green-mid:#2d7a4f;
+    --red:#9b2226;--red-light:#fdf0f0;--red-mid:#c0392b;
+    --amber:#8a5a00;--amber-light:#fef6e4;
+    --blue:#1a3a5c;--blue-light:#e8eef6;
+    --font-body:-apple-system,'Segoe UI',Arial,sans-serif;
+    --font-mono:'SF Mono','Fira Code','Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font-body);background:var(--grey-100);color:var(--grey-700);font-size:14px;line-height:1.6}
+  .page-wrap{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+  .report-header{background:var(--black);margin-bottom:32px}
+  .gold-bar{height:3px;background:var(--gold)}
+  .header-inner{max-width:1100px;margin:0 auto;padding:40px 24px 36px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
+  .header-brand{font-size:10px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;font-weight:700;margin-bottom:12px;font-family:var(--font-mono)}
+  .header-title{font-size:32px;font-weight:300;color:var(--white);letter-spacing:-.5px;line-height:1.2}
+  .header-title strong{font-weight:700}
+  .header-meta{text-align:right;color:var(--grey-500);font-size:13px;line-height:1.8;flex-shrink:0}
+  .header-meta span{display:block}
+  .header-meta .score-badge{font-size:28px;font-weight:700;color:var(--gold);line-height:1;margin-bottom:4px}
+  .section{background:var(--white);border-radius:8px;margin-bottom:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .section-header{padding:18px 24px 14px;border-bottom:1px solid var(--grey-200);display:flex;align-items:baseline;gap:12px}
+  .section-num{font-family:var(--font-mono);font-size:10px;color:var(--gold);font-weight:700;letter-spacing:1px}
+  .section-title{font-size:16px;font-weight:700;color:var(--black);letter-spacing:-.2px}
+  .section-body{padding:24px}
+  .section-body.no-pad{padding:0}
+  .so-what{background:var(--grey-100);border-left:3px solid var(--gold);padding:12px 16px;margin-top:20px;font-size:13px;color:var(--grey-700);border-radius:0 4px 4px 0}
+  .so-what strong{color:var(--black)}
+  .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+  .kpi-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .kpi-card{background:var(--grey-100);border-radius:8px;padding:20px;border:1px solid var(--grey-200);position:relative;overflow:hidden}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .kpi-card.primary::before{background:var(--gold)}
+  .kpi-card.positive::before{background:var(--green)}
+  .kpi-card.negative::before{background:var(--red)}
+  .kpi-card.neutral::before{background:var(--grey-300)}
+  .kpi-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey-500);margin-bottom:8px;font-family:var(--font-mono)}
+  .kpi-value{font-size:36px;font-weight:700;color:var(--black);line-height:1;margin-bottom:6px;letter-spacing:-1px}
+  .kpi-value.gold{color:var(--gold)}
+  .kpi-value.green{color:var(--green)}
+  .kpi-value.red{color:var(--red)}
+  .kpi-sub{font-size:12px;color:var(--grey-500);line-height:1.5}
+  .kpi-sub strong{color:var(--grey-700)}
+  .delta{display:inline-flex;align-items:center;gap:3px;font-size:13px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:6px}
+  .delta.up{background:var(--green-light);color:var(--green)}
+  .delta.down{background:var(--red-light);color:var(--red)}
+  .alert-box{border-radius:6px;padding:16px 20px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start}
+  .alert-box.high{background:var(--red-light);border-left:4px solid var(--red)}
+  .alert-box.medium{background:var(--amber-light);border-left:4px solid var(--amber)}
+  .alert-box.ok{background:var(--green-light);border-left:4px solid var(--green)}
+  .alert-icon{font-size:18px;margin-top:1px;flex-shrink:0}
+  .alert-title{font-size:14px;font-weight:700;margin-bottom:4px}
+  .alert-box.high .alert-title{color:var(--red)}
+  .alert-box.medium .alert-title{color:var(--amber)}
+  .alert-box.ok .alert-title{color:var(--green)}
+  .alert-body{font-size:13px;color:var(--grey-700)}
+  .data-table{width:100%;border-collapse:collapse;font-size:13px}
+  .data-table th{background:var(--black);color:var(--gold);font-family:var(--font-mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:10px 14px;text-align:left;font-weight:700}
+  .data-table th.right{text-align:right}
+  .data-table td{padding:9px 14px;border-bottom:1px solid var(--grey-200);color:var(--grey-700);vertical-align:middle}
+  .data-table td.right{text-align:right;font-family:var(--font-mono);font-size:12px}
+  .data-table td.mono{font-family:var(--font-mono);font-size:12px}
+  .data-table tr:last-child td{border-bottom:none}
+  .data-table tr:nth-child(even) td{background:var(--grey-100)}
+  .data-table tr.total-row td{background:var(--grey-100);font-weight:700;color:var(--black);border-top:2px solid var(--grey-300)}
+  .data-table tr.highlight td{background:var(--gold-light)}
+  .star-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .star-label{font-size:13px;font-weight:700;color:var(--grey-700);width:24px;flex-shrink:0}
+  .star-bar-wrap{flex:1;background:var(--grey-200);border-radius:3px;height:10px}
+  .star-bar-fill{height:10px;border-radius:3px}
+  .star-count{font-family:var(--font-mono);font-size:12px;color:var(--grey-700);width:36px;text-align:right;flex-shrink:0}
+  .star-pct{font-family:var(--font-mono);font-size:11px;color:var(--grey-500);width:40px;flex-shrink:0}
+  .rating-pill{display:inline-block;padding:2px 8px;border-radius:12px;font-family:var(--font-mono);font-size:12px;font-weight:700}
+  .rating-pill.good{background:var(--green-light);color:var(--green)}
+  .rating-pill.mid{background:var(--amber-light);color:var(--amber)}
+  .rating-pill.bad{background:var(--red-light);color:var(--red)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .badge.positive{background:var(--green-light);color:var(--green)}
+  .badge.negative{background:var(--red-light);color:var(--red)}
+  .badge.mixed{background:var(--amber-light);color:var(--amber)}
+  .badge.neutral{background:var(--grey-100);color:var(--grey-500)}
+  .theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .theme-card{border-radius:6px;padding:16px;border:1px solid var(--grey-200)}
+  .theme-card.strength{border-left:3px solid var(--green);background:var(--green-light)}
+  .theme-card.weakness{border-left:3px solid var(--red);background:var(--red-light)}
+  .theme-rank{font-family:var(--font-mono);font-size:11px;color:var(--grey-500);margin-bottom:4px}
+  .theme-name{font-size:14px;font-weight:700;margin-bottom:8px}
+  .theme-card.strength .theme-name{color:var(--green)}
+  .theme-card.weakness .theme-name{color:var(--red)}
+  .theme-stats{display:flex;gap:16px;margin-bottom:10px}
+  .theme-stat{font-size:11px;color:var(--grey-500)}
+  .theme-stat strong{font-family:var(--font-mono);font-size:13px;color:var(--black);display:block}
+  .theme-quote{font-size:12px;font-style:italic;color:var(--grey-700);border-top:1px solid rgba(0,0,0,.08);padding-top:8px;margin-top:4px;line-height:1.5}
+  .theme-quote::before{content:'“'}
+  .theme-quote::after{content:'”'}
+  .draft-card{border:1px solid var(--grey-200);border-radius:6px;margin-bottom:16px;overflow:hidden}
+  .draft-original{background:var(--grey-100);padding:14px 18px;font-size:13px;border-bottom:1px solid var(--grey-200)}
+  .draft-meta{font-size:11px;font-family:var(--font-mono);color:var(--grey-500);margin-bottom:6px}
+  .draft-text{color:var(--grey-700);font-style:italic}
+  .draft-response{background:var(--white);padding:14px 18px}
+  .draft-response-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);font-family:var(--font-mono);margin-bottom:8px}
+  .draft-response-text{font-size:13px;color:var(--grey-700);line-height:1.6}
+  .draft-cta{background:var(--blue-light);border:1px solid #c5d5e8;border-radius:6px;padding:14px 18px;font-size:13px;color:var(--blue);display:flex;align-items:center;gap:10px;margin-top:4px}
+  .subsection-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--grey-500);font-family:var(--font-mono);margin:24px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--grey-200)}
+  .subsection-label:first-child{margin-top:0}
+  .legal-note{background:var(--grey-100);border-radius:6px;padding:16px 20px;font-size:11px;color:var(--grey-500);margin-top:32px;line-height:1.7;border:1px solid var(--grey-200)}
+  .legal-note strong{color:var(--grey-700)}
+  @media(max-width:700px){
+    .kpi-grid{grid-template-columns:1fr 1fr}
+    .theme-grid{grid-template-columns:1fr}
+    .header-inner{flex-direction:column;align-items:flex-start}
+    .header-meta{text-align:left}
+  }
+  @media(max-width:480px){.kpi-grid,.kpi-grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="report-header">
+  <div class="gold-bar"></div>
+  <div class="header-inner">
+    <div>
+      <div class="header-brand">TRIC — The Hospitality Intelligence Company</div>
+      <div class="header-title"><strong>Regina Margherita</strong> · Google Maps Intelligence Report</div>
+    </div>
+    <div class="header-meta">
+      <span class="score-badge">3.97 ★</span>
+      <br>
+      250 reviews analysed<br>
+      Jun 2025 – Mar 2026<br>
+      Erstellt: 14. März 2026
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">KPI Dashboard — Executive Summary</span>
+  </div>
+  <div class="section-body">
+    <div class="kpi-grid">
+      <div class="kpi-card primary">
+        <div class="kpi-label">Overall Google Score</div>
+        <div class="kpi-value gold">3.97 ★</div>
+        <div class="kpi-sub"><strong>250</strong> total reviews</div>
+      </div>
+      <div class="kpi-card positive">
+        <div class="kpi-label">Last 90 Days</div>
+        <div class="kpi-value green">3.92 ★</div>
+        <div class="delta down">▼ -0.06 vs. overall</div>
+        <div class="kpi-sub" style="margin-top:8px"><strong>94</strong> reviews in period</div>
+      </div>
+      <div class="kpi-card neutral">
+        <div class="kpi-label">Owner Response Rate</div>
+        <div class="kpi-value">16.0%</div>
+        <div class="kpi-sub"><strong>40</strong> of 250 reviews answered</div>
+      </div>
+    </div>
+    <div class="kpi-grid-2">
+      <div class="kpi-card positive">
+        <div class="kpi-label">Positive Reviews (4–5 ★)</div>
+        <div class="kpi-value green">176</div>
+        <div class="kpi-sub"><strong>70.4%</strong> of all reviews<br>Last 90 Days: <strong>64</strong> (68.1%)</div>
+      </div>
+      <div class="kpi-card negative">
+        <div class="kpi-label">Negative Reviews (1–2 ★)</div>
+        <div class="kpi-value red">49</div>
+        <div class="kpi-sub"><strong>19.6%</strong> of all reviews<br>Last 90 Days: <strong>18</strong> (19.1%)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">Executive Summary</span>
+  </div>
+  <div class="section-body">
+    <p style="font-size:14px;line-height:1.7;color:var(--grey-500);font-style:italic;">
+[ AI-generated executive summary will appear here once the Claude integration is active. This section will contain a 3–5 sentence narrative summarising the key findings: overall score, trend direction, top strengths, top weaknesses, and a headline recommendation. ]
+    </p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">03a</span>
+    <span class="section-title">Alerts</span>
+  </div>
+  <div class="section-body">
+    <p style="font-size:13px;line-height:1.7;color:var(--grey-500);font-style:italic;margin-bottom:16px;">
+[ AI-generated alerts will appear here. These will flag actionable issues detected in the review data, ranked by severity. ]
+    </p>
+    <div class="alert-box medium">
+      <div class="alert-icon">⚠</div>
+      <div>
+        <div class="alert-title">Alert Placeholder — Medium Severity</div>
+        <div class="alert-body">An automatically detected issue will appear here once the AI analysis layer is active.</div>
+      </div>
+    </div>
+    <div class="alert-box ok">
+      <div class="alert-icon">✓</div>
+      <div>
+        <div class="alert-title">Positive Signal Placeholder</div>
+        <div class="alert-body">A detected positive trend will appear here once the AI analysis layer is active.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-title">Star Rating Distribution</span>
+  </div>
+  <div class="section-body">
+    <div style="max-width:520px;margin-bottom:24px">
+      
+        <div class="star-row">
+          <div class="star-label">5★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:60.0%;background:#1a5e38;"></div></div>
+          <div class="star-count">150</div>
+          <div class="star-pct">60.0%</div>
+        </div>
+        <div class="star-row">
+          <div class="star-label">4★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:10.4%;background:#2d7a4f;"></div></div>
+          <div class="star-count">26</div>
+          <div class="star-pct">10.4%</div>
+        </div>
+        <div class="star-row">
+          <div class="star-label">3★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:10.0%;background:#d0d0ca;"></div></div>
+          <div class="star-count">25</div>
+          <div class="star-pct">10.0%</div>
+        </div>
+        <div class="star-row">
+          <div class="star-label">2★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:6.0%;background:#e07060;"></div></div>
+          <div class="star-count">15</div>
+          <div class="star-pct">6.0%</div>
+        </div>
+        <div class="star-row">
+          <div class="star-label">1★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:13.6%;background:#9b2226;"></div></div>
+          <div class="star-count">34</div>
+          <div class="star-pct">13.6%</div>
+        </div>
+    </div>
+    <table class="data-table" style="max-width:480px">
+      <thead><tr><th>Rating</th><th class="right">Count</th><th class="right">Share</th><th class="right">Last 90 Days</th></tr></thead>
+      <tbody>
+        
+        <tr><td>5 ★</td><td class="right">150</td><td class="right">60.0%</td><td class="right">54</td></tr>
+        <tr><td>4 ★</td><td class="right">26</td><td class="right">10.4%</td><td class="right">10</td></tr>
+        <tr><td>3 ★</td><td class="right">25</td><td class="right">10.0%</td><td class="right">12</td></tr>
+        <tr><td>2 ★</td><td class="right">15</td><td class="right">6.0%</td><td class="right">4</td></tr>
+        <tr><td>1 ★</td><td class="right">34</td><td class="right">13.6%</td><td class="right">14</td></tr>
+        <tr class="total-row"><td>4–5★ (Positive)</td><td class="right">176</td><td class="right">70.4%</td><td class="right">64</td></tr>
+        <tr class="total-row"><td>1–2★ (Negative)</td><td class="right">49</td><td class="right">19.6%</td><td class="right">18</td></tr>
+      </tbody>
+    </table>
+    <div class="so-what"><strong>So what:</strong> 70.4% positive vs. 19.6% negative. Last 90 Days negative share: 19.1%.</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <span class="section-title">Star Rating by Year</span>
+  </div>
+  <div class="section-body no-pad">
+    <table class="data-table">
+      <thead><tr><th>Year</th><th class="right">Reviews</th><th class="right">Avg Rating</th><th class="right">1–2★ Share</th><th class="right">4–5★ Share</th><th class="right">Responded</th><th class="right">Resp. Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">2025</td>
+          <td class="right">178</td>
+          <td class="right"><span class="rating-pill mid">3.96</span></td>
+          <td class="right" style="color:var(--amber)">20.8%</td>
+          <td class="right" style="color:var(--green)">70.8%</td>
+          <td class="right">26</td>
+          <td class="right" style="color:var(--red)">14.6%</td>
+        </tr>
+        <tr class="highlight">
+          <td class="mono">2026&nbsp;YTD</td>
+          <td class="right">72</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td class="right" style="color:var(--green)">16.7%</td>
+          <td class="right" style="color:var(--green)">69.4%</td>
+          <td class="right">14</td>
+          <td class="right" style="color:var(--red)">19.4%</td>
+        </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <span class="section-title">Last 12 Months — Monthly Deep Dive</span>
+  </div>
+  <div class="section-body no-pad">
+    <table class="data-table">
+      <thead><tr><th>Month</th><th class="right">Reviews</th><th class="right">Avg Rating</th><th class="right">1–2★ Share</th><th class="right">4–5★ Share</th><th class="right">Responded</th><th class="right">Resp. Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">Mar 2025</td>
+          <td class="right">0</td>
+          <td class="right"><span class="rating-pill bad">0.00</span></td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Apr 2025</td>
+          <td class="right">0</td>
+          <td class="right"><span class="rating-pill bad">0.00</span></td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">May 2025</td>
+          <td class="right">0</td>
+          <td class="right"><span class="rating-pill bad">0.00</span></td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jun 2025</td>
+          <td class="right">8</td>
+          <td class="right"><span class="rating-pill bad">3.38</span></td>
+          <td class="right" style="color:var(--amber)">25.0%</td>
+          <td class="right" style="color:var(--green)">50.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jul 2025</td>
+          <td class="right">29</td>
+          <td class="right"><span class="rating-pill good">4.10</span></td>
+          <td class="right" style="color:var(--amber)">20.7%</td>
+          <td class="right" style="color:var(--green)">79.3%</td>
+          <td class="right">2</td>
+          <td class="right" style="color:var(--red)">6.9%</td>
+        </tr>
+        <tr>
+          <td class="mono">Aug 2025</td>
+          <td class="right">38</td>
+          <td class="right"><span class="rating-pill good">4.39</span></td>
+          <td class="right" style="color:var(--green)">7.9%</td>
+          <td class="right" style="color:var(--green)">84.2%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Sep 2025</td>
+          <td class="right">16</td>
+          <td class="right"><span class="rating-pill good">4.06</span></td>
+          <td class="right" style="color:var(--amber)">25.0%</td>
+          <td class="right" style="color:var(--green)">68.8%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Oct 2025</td>
+          <td class="right">27</td>
+          <td class="right"><span class="rating-pill good">4.15</span></td>
+          <td class="right" style="color:var(--green)">18.5%</td>
+          <td class="right" style="color:var(--green)">74.1%</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--red)">3.7%</td>
+        </tr>
+        <tr>
+          <td class="mono">Nov 2025</td>
+          <td class="right">25</td>
+          <td class="right"><span class="rating-pill bad">3.32</span></td>
+          <td class="right" style="color:var(--red)">32.0%</td>
+          <td class="right" style="color:var(--green)">48.0%</td>
+          <td class="right">2</td>
+          <td class="right" style="color:var(--red)">8.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Dec 2025</td>
+          <td class="right">35</td>
+          <td class="right"><span class="rating-pill mid">3.77</span></td>
+          <td class="right" style="color:var(--amber)">25.7%</td>
+          <td class="right" style="color:var(--green)">68.6%</td>
+          <td class="right">21</td>
+          <td class="right" style="color:var(--green)">60.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jan 2026</td>
+          <td class="right">31</td>
+          <td class="right"><span class="rating-pill good">4.10</span></td>
+          <td class="right" style="color:var(--green)">12.9%</td>
+          <td class="right" style="color:var(--green)">67.7%</td>
+          <td class="right">14</td>
+          <td class="right" style="color:var(--amber)">45.2%</td>
+        </tr>
+        <tr>
+          <td class="mono">Feb 2026</td>
+          <td class="right">22</td>
+          <td class="right"><span class="rating-pill mid">3.86</span></td>
+          <td class="right" style="color:var(--green)">18.2%</td>
+          <td class="right" style="color:var(--green)">68.2%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Mar 2026</td>
+          <td class="right">19</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td class="right" style="color:var(--amber)">21.1%</td>
+          <td class="right" style="color:var(--green)">73.7%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <span class="section-title">Key Themes — Qualitative Analysis</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection-label">A — Top 10 Key Theme Keywords</div>
+    <p style="font-size:13px;line-height:1.7;color:var(--grey-500);font-style:italic;margin-bottom:16px;">[ AI-generated theme analysis will appear here once the Claude integration is active. ]</p>
+    <table class="data-table" style="margin-bottom:28px">
+      <thead><tr><th>#</th><th>Theme</th><th class="right">Mentions</th><th class="right">Positive</th><th class="right">Negative</th><th class="right">Avg ★</th><th>Direction</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">01</td>
+          <td>[ AI Theme 1 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+        <tr>
+          <td class="mono">02</td>
+          <td>[ AI Theme 2 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+        <tr>
+          <td class="mono">03</td>
+          <td>[ AI Theme 3 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+        <tr>
+          <td class="mono">04</td>
+          <td>[ AI Theme 4 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+        <tr>
+          <td class="mono">05</td>
+          <td>[ AI Theme 5 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="subsection-label">B — Top 5 Strengths</div>
+    <div class="theme-grid" style="margin-bottom:28px">
+        
+        <div class="theme-card strength">
+          <div class="theme-rank">#1 STRENGTH</div>
+          <div class="theme-name">[ AI-identified strength ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>pos. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+        <div class="theme-card strength">
+          <div class="theme-rank">#2 STRENGTH</div>
+          <div class="theme-name">[ AI-identified strength ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>pos. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+        <div class="theme-card strength">
+          <div class="theme-rank">#3 STRENGTH</div>
+          <div class="theme-name">[ AI-identified strength ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>pos. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+    </div>
+    <div class="subsection-label">C — Top 5 Weaknesses</div>
+    <div class="theme-grid" style="margin-bottom:28px">
+        
+        <div class="theme-card weakness">
+          <div class="theme-rank">#1 WEAKNESS</div>
+          <div class="theme-name">[ AI-identified weakness ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>neg. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+        <div class="theme-card weakness">
+          <div class="theme-rank">#2 WEAKNESS</div>
+          <div class="theme-name">[ AI-identified weakness ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>neg. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+        <div class="theme-card weakness">
+          <div class="theme-rank">#3 WEAKNESS</div>
+          <div class="theme-name">[ AI-identified weakness ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>neg. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+    </div>
+    <div class="subsection-label">D — Full Keyword Summary</div>
+    <p style="font-size:13px;line-height:1.7;color:var(--grey-500);font-style:italic;">[ Full keyword breakdown will appear here once the AI analysis layer is active. ]</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <span class="section-title">Client Profiles — Language Distribution</span>
+  </div>
+  <div class="section-body no-pad">
+    <table class="data-table">
+      <thead><tr><th>Language</th><th class="right">Reviews with Text</th><th class="right">% of Total (250)</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td>German</td>
+          <td class="right">94</td>
+          <td class="right">37.6%</td>
+        </tr>
+        <tr>
+          <td>English</td>
+          <td class="right">54</td>
+          <td class="right">21.6%</td>
+        </tr>
+        <tr>
+          <td>Italian</td>
+          <td class="right">18</td>
+          <td class="right">7.2%</td>
+        </tr>
+        <tr>
+          <td>Spanish</td>
+          <td class="right">4</td>
+          <td class="right">1.6%</td>
+        </tr>
+        <tr>
+          <td>Arabic</td>
+          <td class="right">4</td>
+          <td class="right">1.6%</td>
+        </tr>
+        <tr>
+          <td>No text (rating only)</td>
+          <td class="right">50</td>
+          <td class="right">20.0%</td>
+        </tr>
+        <tr>
+          <td>Other languages</td>
+          <td class="right">26</td>
+          <td class="right">10.4%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <span class="section-title">Owner Responses</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection-label">A — Response Rate by Star Rating</div>
+    <table class="data-table" style="margin-bottom:28px">
+      <thead><tr><th>Star Rating</th><th class="right">Total Reviews</th><th class="right">Responded</th><th class="right">Response Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td>5 ★</td>
+          <td class="right">150</td>
+          <td class="right">19</td>
+          <td class="right" style="color:var(--red)">12.7%</td>
+        </tr>
+        <tr>
+          <td>4 ★</td>
+          <td class="right">26</td>
+          <td class="right">2</td>
+          <td class="right" style="color:var(--red)">7.7%</td>
+        </tr>
+        <tr>
+          <td>3 ★</td>
+          <td class="right">25</td>
+          <td class="right">5</td>
+          <td class="right" style="color:var(--red)">20.0%</td>
+        </tr>
+        <tr>
+          <td>2 ★</td>
+          <td class="right">15</td>
+          <td class="right">3</td>
+          <td class="right" style="color:var(--red)">20.0%</td>
+        </tr>
+        <tr>
+          <td>1 ★</td>
+          <td class="right">34</td>
+          <td class="right">11</td>
+          <td class="right" style="color:var(--amber)">32.4%</td>
+        </tr>
+        <tr class="total-row"><td>TOTAL</td><td class="right">250</td><td class="right">40</td><td class="right">16.0%</td></tr>
+      </tbody>
+    </table>
+    <div class="subsection-label">B — Response Rate by Year</div>
+    <table class="data-table" style="margin-bottom:28px">
+      <thead><tr><th>Year</th><th class="right">Total Reviews</th><th class="right">Responded</th><th class="right">Response Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">2025</td>
+          <td class="right">178</td>
+          <td class="right">26</td>
+          <td class="right" style="color:var(--red)">14.6%</td>
+        </tr>
+        <tr class="highlight">
+          <td class="mono">2026</td>
+          <td class="right">72</td>
+          <td class="right">14</td>
+          <td class="right" style="color:var(--red)">19.4%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="subsection-label">C — Response Rate: Last 12 Months</div>
+    <table class="data-table" style="margin-bottom:28px">
+      <thead><tr><th>Month</th><th class="right">Reviews</th><th class="right">Responded</th><th class="right">Response Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">Mar 2025</td>
+          <td class="right">0</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Apr 2025</td>
+          <td class="right">0</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">May 2025</td>
+          <td class="right">0</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jun 2025</td>
+          <td class="right">8</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jul 2025</td>
+          <td class="right">29</td>
+          <td class="right">2</td>
+          <td class="right" style="color:var(--red)">6.9%</td>
+        </tr>
+        <tr>
+          <td class="mono">Aug 2025</td>
+          <td class="right">38</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Sep 2025</td>
+          <td class="right">16</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Oct 2025</td>
+          <td class="right">27</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--red)">3.7%</td>
+        </tr>
+        <tr>
+          <td class="mono">Nov 2025</td>
+          <td class="right">25</td>
+          <td class="right">2</td>
+          <td class="right" style="color:var(--red)">8.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Dec 2025</td>
+          <td class="right">35</td>
+          <td class="right">21</td>
+          <td class="right" style="color:var(--green)">60.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jan 2026</td>
+          <td class="right">31</td>
+          <td class="right">14</td>
+          <td class="right" style="color:var(--amber)">45.2%</td>
+        </tr>
+        <tr>
+          <td class="mono">Feb 2026</td>
+          <td class="right">22</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Mar 2026</td>
+          <td class="right">19</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="subsection-label">D — Draft Owner Responses (Examples)</div>
+    
+        <div class="draft-card">
+          <div class="draft-original">
+            <div class="draft-meta">1★ · Mar 2026 · German · Unanswered</div>
+            <div class="draft-text">Schrecklicher Service. Die Kellner achten kaum auf die Gäste.
+
+Zum Wasser wurden keine Gläser gebracht, und wir mussten etwa 15 Minuten warten, bis überhaupt jemand auf uns aufmerksam wurde und sie br…</div>
+          </div>
+          <div class="draft-response">
+            <div class="draft-response-label">Draft Response — German</div>
+            <div class="draft-response-text">[ AI-generated response in German will appear here once the Claude integration is active. ]</div>
+          </div>
+        </div>
+        <div class="draft-card">
+          <div class="draft-original">
+            <div class="draft-meta">1★ · Mar 2026 · German · Unanswered</div>
+            <div class="draft-text">Leider habe ich nach meinem Besuch in diesem Restaurant eine Lebensmittelvergiftung erlitten. Besonders enttäuschend fand ich die Reaktion des Restaurantleiters Herrn Barbaro, der die Möglichkeit eine…</div>
+          </div>
+          <div class="draft-response">
+            <div class="draft-response-label">Draft Response — German</div>
+            <div class="draft-response-text">[ AI-generated response in German will appear here once the Claude integration is active. ]</div>
+          </div>
+        </div>
+        <div class="draft-card">
+          <div class="draft-original">
+            <div class="draft-meta">5★ · Mar 2026 · German · Unanswered</div>
+            <div class="draft-text">Immer wieder eine Freude hier zu essen! Das Ambiente, die Qualität der Speisen und die tolle Atmosphäre die durch das engagierte Team entsteht - da komme ich gerne wieder!
+Dann aber hoffentlich im Fre…</div>
+          </div>
+          <div class="draft-response">
+            <div class="draft-response-label">Draft Response — German</div>
+            <div class="draft-response-text">[ AI-generated response in German will appear here once the Claude integration is active. ]</div>
+          </div>
+        </div>
+    <div class="draft-cta">
+      <span style="font-size:20px">✉</span>
+      <div><strong>We can populate this for all your unanswered reviews.</strong> TRIC generates ready-to-copy responses for every open review — in the language of the original reviewer, prioritised by star rating.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <span class="section-title">Appendix — All Reviews (250 records)</span>
+  </div>
+  <div class="section-body no-pad">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th class="right">Rating</th><th>Reviewer</th><th>Review Text (excerpt)</th><th class="right">Answered</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">14 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Kristina Manuzina</td>
+          <td style="max-width:400px;word-break:break-word">Итальянский ресторан в центре Вены. На мой взгляд цены завышены. Обслуживание и атомсфера хорошие.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Mar 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Arina Zaiarnaia</td>
+          <td style="max-width:400px;word-break:break-word">Schrecklicher Service. Die Kellner achten kaum auf die Gäste.
+
+Zum Wasser wurden keine Gläser gebracht, und wir mussten etwa 15 Minuten warten, bis überhaupt jemand auf uns aufmerksam wurde und sie brachte.
+
+Der Rotwein wirkte wie mit Wasser verdünnt und war außerdem viel zu warm. Wir bestellten auc</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Andreas Feuerstein</td>
+          <td style="max-width:400px;word-break:break-word">Immer wieder eine Freude hier zu essen! Das Ambiente, die Qualität der Speisen und die tolle Atmosphäre die durch das engagierte Team entsteht - da komme ich gerne wieder!
+Dann aber hoffentlich im Freien - im schönen Innenhof.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Mar 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Chinara T</td>
+          <td style="max-width:400px;word-break:break-word">Leider habe ich nach meinem Besuch in diesem Restaurant eine Lebensmittelvergiftung erlitten. Besonders enttäuschend fand ich die Reaktion des Restaurantleiters Herrn Barbaro, der die Möglichkeit eines Zusammenhangs kategorisch abgestritten hat.
+
+Natürlich kann so etwas grundsätzlich überall passier</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Agustina Bittar</td>
+          <td style="max-width:400px;word-break:break-word">Lovely Italian restaurant. Super kind, great music and vibe. Pizza was 10/10!!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Martina Schieder</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>reinhard haunold</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Diana Munteanu</td>
+          <td style="max-width:400px;word-break:break-word">Great food and friendly staff. Recommend</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Diana Kaldare</td>
+          <td style="max-width:400px;word-break:break-word">Nice restaurant with the lovely staff and best pizza taste that makes you feel like you&#x27;re in Italy! The manager found us a quick table for a party of 6 and it came quickly with the menus and helped us to choose the food and we&#x27;re pacient as some of us had allergies.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Lucas Zehe</td>
+          <td style="max-width:400px;word-break:break-word">War richtig gut</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Mar 2026</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Savoir Vivre</td>
+          <td style="max-width:400px;word-break:break-word">Location Ok. Pizzen schmecken hervorragend. Beim Personal kommt es auf die Tagesverfassung und Auslastung an. Manches Mal totale Herzlichkeit, dann wieder eher hektisches, etwas unpersönliches Gebaren. Der scheinbar narzisstische Chef ist mühsam im Auftritt. Ich erspare mir das zukünftig.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Stefan S</td>
+          <td style="max-width:400px;word-break:break-word">Tolles Lokal, waren 9 Personen einfach köstlich, der Service ebenfalls optimal 👍</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>rafa kapa</td>
+          <td style="max-width:400px;word-break:break-word">E sólo una parola basta per capire
+E tutto buonissimo anche bellissimo dentro propio ti senti come in Italia</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Fritz Stern</td>
+          <td style="max-width:400px;word-break:break-word">Sehr familiäre Bedienung, obwohl es unser erster Besuch war, aber sicher nicht unser letzter! Sehr gute Qualität bei Speisen und Getränken!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Mar 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Irma Hohenlohe</td>
+          <td style="max-width:400px;word-break:break-word">Schon der erste Eindruck war nicht gerade einladend. Unser reservierter Tisch für drei Personen sei noch nicht fertig, sagte der unfreundliche Kellner und wir sollten dort im Mantel (!) warten. Da der Innenraum überfüllt und sehr laut war, haben wir uns entschieden, in dem Plastikzelt am Eingang Pla</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Mar 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Weronika</td>
+          <td style="max-width:400px;word-break:break-word">Jeśli chodzi o jedzenie, nie było najgorzej. Pizza miała ser tylko na jednej połowie, jednak nie stanowiło to dla mnie większego problemu. Niestety rozczarowała nas obsługa. Po zajęciu stolika zamówiłam jedną pizzę dla siebie, ponieważ koleżanka nie była głodna. W tym momencie kelnerka spojrzała na </td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Geertje Duncan</td>
+          <td style="max-width:400px;word-break:break-word">Zaterdagavond, niet gereserveerd, toch gelukt een tafeltje te krijgen. Lekkere Italiaanse sfeer met Italiaanse bediening. De bediening was ietwat vluchtig, niet heel snel en proactief, desalniettemin vriendelijk.
+Pizza’s waren heerlijk met echte steenovensmaak.
+De akoestiek was niet fantastisch, was</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Oscar</td>
+          <td style="max-width:400px;word-break:break-word">Lo que probamos de 10, el maitre muy profesional y amable. Una trocito de Italia en Viena. Para volver.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Mar 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Klaudia48626</td>
+          <td style="max-width:400px;word-break:break-word">Wie immer hervorragender Service, tolles Essen und entspanntes Ambiente. Love it!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Feb 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Agnieszka Grajcar</td>
+          <td style="max-width:400px;word-break:break-word">Pani z upiętą grzywką na spinki w krótkich włosach nie przyniosła pełnego zamówienia. Po dwukrotnym zwróceniu uwagi przewróciła oczami i z niechęcią i uwagami pod nosem odeszła, po czym przyniosła jedna porcję pełna a druga pomniejszoną o połowę. Trzy osoby miały trunki a dwie nadal oczekiwały.
+Co s</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Sarah R.</td>
+          <td style="max-width:400px;word-break:break-word">Sehr leckere Pizza</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Peter Colard</td>
+          <td style="max-width:400px;word-break:break-word">Beste Pizza ever!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Amira Bittar</td>
+          <td style="max-width:400px;word-break:break-word">We went for lunch and absolutely loved this place! The atmosphere is amazing, and hearing everyone speak Italian really makes you feel like you’re in Italy for a while. We ordered the Caprese salad (the dressing 10/10) and the Regina Margherita pizza (my absolute favorite), and it was SO good. Every</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Anja Kuehnel</td>
+          <td style="max-width:400px;word-break:break-word">Tolle Atmosphäre im Chalet, super Wein und Prosecco, Essen lecker, aber vermutlich würde ein hungriger Mann nicht satt werden bei den eher kleinen Portionen.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Feb 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>AHMED AL-MOHAMMED ALI</td>
+          <td style="max-width:400px;word-break:break-word">The food was not that good especially the steak was not good as we asked the server (Indian lady) to change it or cancel it because we are not able to eat it she refused to help us and she was so rude and disrespectful to us which is not acceptable at all as we are paying for the food not for free a</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Yvonne O</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Feb 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Sylvia Gyarmaty</td>
+          <td style="max-width:400px;word-break:break-word">Aus diesem einst so feinen Guten Italiener ist eine Massenabfertigung mit mehr als durchschnittlichem Essen geworden. Sehr hoher Lärmpegel und Personal total überfordert....also wieder ein Lokal für mich gestrichen....</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Iulia Cornea</td>
+          <td style="max-width:400px;word-break:break-word">Very nice and cozy place to eat. The food is delicious and the service is beyond expectations. We celebrated a birthday and the personnel served the cake in a festive way.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Cristina Zainea</td>
+          <td style="max-width:400px;word-break:break-word">We were a big group and organised a birthday party in Regina Margherita. Everything was amazing - the staff very polite, professional and friendly. Also very attentive to our wishes and flexible regarding the organisation (we changed from the chalet to the inside part and added a few persons on a sh</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Feb 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>C Vo</td>
+          <td style="max-width:400px;word-break:break-word">Leider stark nachgelassen, sowohl was das Service anbelangt als auch die Qualität der Speisen. Service war unaufmerksam (ewig nicht aufgenommen), fast unfreundlich (auf Empfehlungsfrage reagiert) und unzuverlässig (Getränk vergessen und lange nicht nachgebracht, Brot wurde trotz Nachfrage einfach ni</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Pál Geszti</td>
+          <td style="max-width:400px;word-break:break-word">Busy place in the heart of Vienna. I strongly recommend to make your reservation well in advance, especially if you wanna go there on a Saturday. The food was excellent, i tried spaghetti piccante with olives. The atmosphere is good, staff is very nice.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Miriam Roggmann</td>
+          <td style="max-width:400px;word-break:break-word">Ein sehr schönes Lokal, tolles Essen, sehr aufmerksamer Service aber man bekommt schnell das Gefühl vermittelt, dass man nur erwünscht ist solange man sehr regelmäßig nachbestellt. Gemütlich den Abend ausklingen lassen ist dort also nicht gut möglich</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Eduard Munteanu</td>
+          <td style="max-width:400px;word-break:break-word">Speziell wie immer! Hervorragende Atmosphäre! Essen spitze! Elegant, Bequem, Fresh, Authentisch und Fair zeitgleich! Gerne wieder!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Feb 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Carmen Russo</td>
+          <td style="max-width:400px;word-break:break-word">Siamo stati in questo ristorante italiano a Vienna e dobbiamo dire che abbiamo mangiato davvero molto bene: piatti ottimi, ben presentati e di qualità. Un grande punto a favore va anche a tutto il personale di sala, che si è dimostrato estremamente disponibile, gentile e accogliente, sempre con il s</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Markus Bussmann</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Barbara Reinwein</td>
+          <td style="max-width:400px;word-break:break-word">Ein ausgezeichnetes Restaurant mit unfassbar freundlichem Service!
+Tischreservierung unbedingt empfohlen.
+Hund durfte mit.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Vignesh Mohan</td>
+          <td style="max-width:400px;word-break:break-word">Just excellent. The food, the service, the ambience, everything was top notch. We ordered appetizers and pizzas. The food was presented good and tasted good too. Every dish was brought after the right amount of time. It entirely made our evening! Perfect restaurant for special occasions. I highly re</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Great White</td>
+          <td style="max-width:400px;word-break:break-word">love this restaurant. The pizza was amazing, especially the four cheese. Perfect flavors, great crust. I will definitely come back. 🍕</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Feb 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Alish Day</td>
+          <td style="max-width:400px;word-break:break-word">The food is good but the manager is rude</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>amin</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Feb 2026</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Claudia Egkher</td>
+          <td style="max-width:400px;word-break:break-word">Wir saßen nicht im Lokal sondern im Zubau. Sehr ungemütlich. Musik war viel zu laut. Das essen war ganz in Ordnung aber nicht außergewöhnlich.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Anna Melanie Lazar</td>
+          <td style="max-width:400px;word-break:break-word">Die Pizza ist sehr lecker und deswegen haben wir das Restaurant für meinen Geburtstag reserviert. Da es üblich ist das man auf Haus ein Dessert erhält oder zumindest eine Kleinigkeit, haben wir nicht damit gerechnet dass für ein kleines Tiramisu mit einer Kerze 14.90€ verlangt wird. Es tut mir wirkl</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Chiara Bonfiglio</td>
+          <td style="max-width:400px;word-break:break-word">Mein absolutes Lieblingsrestaurant in Wien. Die Pizza schmeckt wie ein Stück Italien: perfekter Teig, hochwertige und frische Zutaten und dieser authentische Geschmack. Die Atmosphäre ist warm und einladend – und unser kleiner Hund ist dort immer willkommen. Ein Ort, zu dem ich immer wieder gern zur</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>svetlana kekelia</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Cornelia Steiner</td>
+          <td style="max-width:400px;word-break:break-word">Die Pizzen und die Trüffel Pasta sind immer ein Traum! Das Servicepersonal ist freundlich und zuvorkommend. Kommen immer wieder gerne :)</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Stefan Weinz</td>
+          <td style="max-width:400px;word-break:break-word">Zur Lage bzw zum Standort braucht man nicht viel sagen...ein Lokal im ersten Bezirk von Wien in einem netten Innenhof. Das Essen (Pizza bzw Wolfsbarsch) war auch wirklich sehr gut,  das Haupt&quot;problem&quot; war an dem Abend, an dem wir das Lokal besuchten das Personal. Angefangen vom Geschäftsfü</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Maggy</td>
+          <td style="max-width:400px;word-break:break-word">Die Pizza ist gut, aber auch nicht die beste Pizza in Wien. Ich schätze hier geht es aber auch mehr um sehen und gesehen werden :D</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Daniel Zillner</td>
+          <td style="max-width:400px;word-break:break-word">Super Essen, Super Preis! Immer wieder</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Erics Layla</td>
+          <td style="max-width:400px;word-break:break-word">Aus unserer Sicht kommt hier ordentliche italienische Durchschnittsküche auf die Teller. Die selbstbewussten Preise sind zum einen der Lage im 1. Bezirk geschuldet und zum anderen will anscheinend der Name Barbaro gut bezahlt sein.
+
+In der Summe aber waren wir nicht unzufrieden, mein Saltimbocca war</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>marija</td>
+          <td style="max-width:400px;word-break:break-word">Beste Pizza in der Stadt  !</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Daniela Bitetto</td>
+          <td style="max-width:400px;word-break:break-word">Ottimo locale a Vienna dove mangiare cibo italiano ottimo. Camerieri italiani.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>A Schülzchen</td>
+          <td style="max-width:400px;word-break:break-word">Es ist dort alles perfekt und man fühlt sich hier wie in Italien;)</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Michael Schilling</td>
+          <td style="max-width:400px;word-break:break-word">Top Service tolle Stimmung und immer richtig lustiger und toller Service!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Alexander Lengersdorf</td>
+          <td style="max-width:400px;word-break:break-word">Unfassbar lecker und sehr schönes Ambiente :)</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Alessio Di Stefano</td>
+          <td style="max-width:400px;word-break:break-word">A Vienna ma come a casa!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Anabela Avgustinovic</td>
+          <td style="max-width:400px;word-break:break-word">excellent food</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Filip Colakovic</td>
+          <td style="max-width:400px;word-break:break-word">Kurzfristig einen Tisch für 2 bekommen, eine sehr gute neapolitanische Pizza!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Eri Sallaku</td>
+          <td style="max-width:400px;word-break:break-word">Cibo veramente come fosse in Italia, non ho mai mangiato così autentico in Austria.
+Bravi e cordiali.
+Prezzo normale visto che si trova in centro a viena.
+Complimenti</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Beate Spangl-Rausch</td>
+          <td style="max-width:400px;word-break:break-word">Schon lange nicht mehr dermaßen schlecht gefühlt in einem Lokal, Abfertigung vergleichbar mit einer Skihütte, nur dort weißt man, was einen erwartet und was man bekommt.
+Essen war ok, aber von Bestellung bis zum Servieren der Vor- u. Hauptspeisen 15&#x27; . Die Vorspeise war am Tisch, 1 Minute späte</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Aneta Bejenar</td>
+          <td style="max-width:400px;word-break:break-word">Truly authentic Italian cuisine, full of flavour, excellent service, and a Falanghina wine that takes you straight to the Naples region 🍷🇮🇹
+A warm and welcoming atmosphere, perfect for a relaxed dinner with friends or family. A place you’ll definitely want to come back to!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Mirella G</td>
+          <td style="max-width:400px;word-break:break-word">Wir haben für ein Weihnachtsfeier im Freundeskreis für das Chalet reserviert. Als wir ankamen hieß es, dass wir 30 min auf unseren Tisch warten müssen und das wir eine Flasche Prosecco aufs Haus bekommen - so sollte es auch sein und kann passieren, das Gäste länger bleiben und man warten muss. Insge</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>houdi Matei</td>
+          <td style="max-width:400px;word-break:break-word">Pizza foarte bună recomand restaurant frumos personal prietenos</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Milena Radovic</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Виктор Алексеев</td>
+          <td style="max-width:400px;word-break:break-word">Kellner Yurii ist der beste</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Timo Neubacher</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Mike</td>
+          <td style="max-width:400px;word-break:break-word">Kalte Atmosphäre.
+Pizza gut.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Markus Weber</td>
+          <td style="max-width:400px;word-break:break-word">Einfach nur geil diese &quot;Hütte&quot; 😉👍</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Teodora Mladenovic</td>
+          <td style="max-width:400px;word-break:break-word">This was one of the few restaurants I would always go back to. I really enjoyed their winter garden, and open garden in the summer. The food is really good and they are pretty fast. However on my last visit few days ago, i was there with 5 friends and each of us ordered a pizza. Everything arrived a</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Tatya Yan</td>
+          <td style="max-width:400px;word-break:break-word">They took your credit card and plus 10% tipps without informing.  Really impolite</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Hannah Berndorfer</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Sophie Thiercelin</td>
+          <td style="max-width:400px;word-break:break-word">Une belle expérience a Vienne, un.tres bel accueil, un joli cadre et des pizzas de qualité !</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Alexandra Maria</td>
+          <td style="max-width:400px;word-break:break-word">Great Italian restaurant with authentic Italian cuisine. The prices are very good. The only negative was the behavior of the man at the reception.
+He was constantly argumentative and rude. When we asked him to speak English, he smiled ironically and told us there was no table, while the others menti</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Gerald Bichinger</td>
+          <td style="max-width:400px;word-break:break-word">Ausgezeichnete italienische Küche und Atmosphäre. Stets gut betreut durch das freundliche Personal!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Ervin Muhic</td>
+          <td style="max-width:400px;word-break:break-word">Die Pizza hat mir hier immer gut geschmeckt und ich war immer gerne zum Besuch hier. Ich habe jedoch heute (zum Silvester) eine äußerst unangenehme Überraschung erlebt. Die Preise zum Silvester wurden unangemessen angepasst und alles hat viel mehr gekostet als es an anderen Tagen kostet. Zum Beispie</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>anniexa. c</td>
+          <td style="max-width:400px;word-break:break-word">The indoor seating area was full. And we were seated at the outdoor covered cabin area with small heater above our heads to keep the space warm.
+
+We ordered 2 pizzas, and a pasta dish to share. The pizza was huge for Asian&#x27;s appetite.
+
+We liked the pizza dough - soft &amp; chewy,  and the fresh</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Aviv Beckerman</td>
+          <td style="max-width:400px;word-break:break-word">The dishes are simply perfect. Every detail is spot on — from the gnocchi, to the pastas, and all the way to the desserts. Everything is executed with precision and balance. The kind of food that makes you want to lick the plate.On top of that, the waitstaff is incredibly friendly, warm, and attenti</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Катя Мащенко</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Таїсія Авраміч</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Mia</td>
+          <td style="max-width:400px;word-break:break-word">Sehr leckeres Essen, das Winter Chalet ist sehr schön und die Bedienung sehr freundlich und zuvorkommend.
+
+Gerne wieder 🥰👍🏻</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Ahmad Tahir</td>
+          <td style="max-width:400px;word-break:break-word">Absolutely terrible experience. We were ignored for a very long time before anyone bothered to attend to us, despite the restaurant not being busy. The staff was rude, dismissive, and acted like customers were an inconvenience. We ordered two pizzas. One was acceptable, but the Margherita was badly </td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>B W</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Марина</td>
+          <td style="max-width:400px;word-break:break-word">Очень плохое обслуживание, маленькие порции, и не очень вкусно.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Deepak Lal</td>
+          <td style="max-width:400px;word-break:break-word">Das heutige Essen bei Regina Margherita hat mir gut gefallen.
+Die Pizzen waren sehr lecker und entsprachen geschmacklich dem klassischen neapolitanischen Stil – locker, luftig und gut belegt.
+Das Service-Team war freundlich und aufmerksam, was den Besuch angenehm gemacht hat.
+Das Ambiente war in Ord</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Karolina Grgic</td>
+          <td style="max-width:400px;word-break:break-word">Pizzeria je ugodno mjesto sa odličnom napoletanskom pizzom i raznim vrstama tjestenina. Pizzeria se nalazi u sklopu Esterhazy palače što joj daje poseban šarm. Preporučam posjetiti uz obaveznu prethodnu rezervaciju.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Julia Stroj</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>mayke van dijk</td>
+          <td style="max-width:400px;word-break:break-word">Heerlijk gegeten, echt Italiaans. Prima prijs. Zowel pizza als pasta als bruscetta’s erg lekker! Aanrader</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Daniel Tsvetanov</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Gert Verdino</td>
+          <td style="max-width:400px;word-break:break-word">Gutes Essen. Sehr freundlich. Wenn ich in Wien bin, gehe ich immer dorthin.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Ahmet Durdil</td>
+          <td style="max-width:400px;word-break:break-word">Pizzaları çok güzel ve çok iyi garsonları var. Zeytinyağına bayıldık Sicilya&#x27;dan geliyormuş. Soğuk bir günde beklememek için bahçesinde oturduk ısıtıcılardan dolayı üşümedik. Pizza&#x27;nın hamuru aşırı yumuşak geldi onun dışında çok lezzetliydi.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>F N</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>axel mittnik</td>
+          <td style="max-width:400px;word-break:break-word">Vielleicht war es ein Fehler, in der Vorweihnachtszeit zu kommen, lokal knallvoll, sehr laut, unruhig, kalt und zugig, time-slots auch für das personal ein Wahnsinn, unfassbar stressig und das Gegenteil von gemütlich,, Personal trotzdem freundlich, Essen teils hervorragend, teils geht so.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>D S</td>
+          <td style="max-width:400px;word-break:break-word">Kitschiger Pseudo Italiener für Touristen in der Innenstadt.
+
+Pizzen gibt es in den vielen echten Sauerteig Pizzerien in Wien mittlerweile deutlich bessere! War hier eher vertrocknet und angebrannt, also unterer Durchschnitt in Wien.
+
+Das Fischgericht ist mit 30€ für drei winzige Stücke mehr als übe</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>sat gadhvi</td>
+          <td style="max-width:400px;word-break:break-word">Worst !!
+On Google it shows 11:30 pm and they did not allow inside at 22:15 !!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Harald Gebert</td>
+          <td style="max-width:400px;word-break:break-word">Essen sehr gut, wir waren im Dezember, 6er Tisch zentral im Lokal, sehr zugig und eisig kalt, warm anziehen, mussten sehr lange warten bis wir überhaupt wahrgenommen wurden und zum Tisch gebracht wurden</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Марина Мегера</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Andrei A</td>
+          <td style="max-width:400px;word-break:break-word">very rude and unfriendly manager</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Ammar AGA</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>PiPa Porsch</td>
+          <td style="max-width:400px;word-break:break-word">Sehr schönes Lokal und wirklich gutes Essen. Einzig die Tische sind ein wenig klein gewesen. Wir waren eine Gruppe von 6 Leuten und wurden auf einen runden Tisch gesetzt. Was mit den ganzen Tellern sehr unpraktisch war. Sehr gut besuchtes Lokal. Parken rundherum ist nicht zu empfehlen.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Pol Berenguer Coma</td>
+          <td style="max-width:400px;word-break:break-word">Cena espectacular en Regina Margherita. Pedimos los gnocchis de trufa (increíbles) y la pizza de búfala, todo con muchísimo sabor. Nos atendió Valerio, súper amable y atento en todo momento; nos recomendó la cerveza típica de Viena, que estaba riquísima, y el servicio fue rapidísimo. 🔝🍝🍕🍺</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Am Lo</td>
+          <td style="max-width:400px;word-break:break-word">Wir waren im Dezember als größere Gruppe dort - die Speisen war köstlich, und zwar egal, was man bestellt hat. Für mich waren die Fischgerichte, sowohl roh als gekocht, ein Highlight, und vom Brot mit Olivenöl kann man kaum die Finger lassen, so köstlich ist das. Der Service ist ebenso exzellent, es</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Philip Ullmann</td>
+          <td style="max-width:400px;word-break:break-word">Wirklich exzellentes Essen, sehr zuvorkommende Bedienung, jederzeit wieder!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Sergio Pirillo</td>
+          <td style="max-width:400px;word-break:break-word">Valerio mi ha fatto sentire in calabria portando i peperoncini! Staff e servizio professionali!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Christian Ruppnig</td>
+          <td style="max-width:400px;word-break:break-word">Essen und Service ist ausgezeichnet, leider ist es tendenziell eng und laut.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Rudolf Gallist</td>
+          <td style="max-width:400px;word-break:break-word">Wir waren spontan in der Nähe und wählten das Lokal aufgrund guter Rezensionen aus. Es nicht leicht zu finden, da im Innenhof gelegen.
+Der Gastgarten sah nett aus. Innen ist es etwas beengt und nicht sonderlich originell. Aber dem Zweck durchaus entsprechend.
+
+Das Service war nicht gerade einladend,</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Maljoxolion94</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>עורכת דין אמה אליאב</td>
+          <td style="max-width:400px;word-break:break-word">הגענו קבוצה בינונית של 11 איש, חלקנו מישראל. מסעדה יפה שנמצאת בתוך חצר בשטפנפלאץ. אוכל איטלקי אותנטי וטעים. הכל טרי. פיצות מעולות בטאבון. קינוחים מעלפים. אווירה כיפי. המלצר שלנו, ולריו היה מנאפולי, והיה שירותי ואדיב מאוד. כאשר אמרנו שיש חגיגת יומהולדת, הביאו מגש קינוחים עם זיקוק והשמיעו שיר באיטלקית</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Peter Fischer</td>
+          <td style="max-width:400px;word-break:break-word">The food was worth the visit, but the service has room for improvement. This is a competitive business, and therefore our expectations are high, specifically for a flawless service.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Gassi senior</td>
+          <td style="max-width:400px;word-break:break-word">Nachdem ich die Falstaff Wertung der Top 10 Pizzerias in Wien langsam abarbeite bin ich heute beim 8 Platzierten Regina Margaritha gelandet.Eine versteckte Pizzeria im Innenhof des Palais Esterhaszy.Die Gäste stehen zur Ballungszeit Schlange um noch einen Sitzplatz zu ergattern.Ich hat Glück und bek</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Chris Mayer</td>
+          <td style="max-width:400px;word-break:break-word">Essen in Ordnung. Service etwas zu viel von sich selbst Überzeugt.
+Generell aber etwas zu laut und eng. Im Winter zieht die kalte Luft rein, weil die Tür zum kalten Wintergarten ständig offen ist.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>סשה מוסקאלץ</td>
+          <td style="max-width:400px;word-break:break-word">הגענו למסעדה בשעה 22:20 (שעה וחצי לפני סגירה), המלצרים לא הסכימו להכניס אותנו בטענה שהמטבח סגור. התעקשתי לדבר עם מישהו בכיר להבין מדוע באתר ובגוגל מפות רשום שהמסעדה נסגרת ב23:30 ללא עדכון שהמטבח עצמו נסגר שעה לפני.
+קיבלתי יחס מאוד מזלזל מצוות המסעדה שרצה רק להעיף אותי מהמקום.
+מאוד מבאס ומאכזב …</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Cindy Lu</td>
+          <td style="max-width:400px;word-break:break-word">A misunderstanding with our order was handled in the most uncomfortable way with three waiters intervening. We specifically ordered the three course meal, even pointing it out on the menu but our initial waiter got it wrong - this was not a big problem. However, the waiter was very arrogant and rude</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Salah Hammad</td>
+          <td style="max-width:400px;word-break:break-word">Rude service, felt like i was an inconvenience. The service ruined the atmosphere and the server was giving an annoyed look. The food itself was amazing so no complaints there.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Thomas Schuster</td>
+          <td style="max-width:400px;word-break:break-word">Sehr gutes Essen, leider wird das Erlebnis getrübt. Es ist trotz Heizstrahler irgendwie kalt. Die Wangen glühen, die Nieren sind eisig kalt. Egal ob man an der Wand sitzt oder mit dem Rücken nach innen. Bei Gerichten mit Salat wartet man doch eine zeitlang auf den Salat. Ich würde erwarten, mein Ess</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Tubi E.</td>
+          <td style="max-width:400px;word-break:break-word">Das Essen war wirklich lecker – besonders die Pizza war hervorragend. Leider konnte der Service da nicht mithalten. Die Bedienung wirkte sehr schläfrig und unaufmerksam. Sowohl beim Bestellen als auch beim Bezahlen mussten wir ewig warten, und freundlich war man leider auch nicht.
+Schade, denn das g</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Johannes Christian</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Christoph Novak</td>
+          <td style="max-width:400px;word-break:break-word">Laufkunden finden dieses Lokal nur schwer, denn in der Wallnerstraße fehlt ein Schild. Innen ist das Restaurant aber ein echtes Juwel. Wir aßen in dem gemütlichen Winterchalet zu Abend. Der Raum wirkt wie eine Skihütte in den Alpen. Die Atmosphäre, der italienische Empfang und die Musik schaffen ein</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Susanne</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Nikola Avramović</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Marija Kustura</td>
+          <td style="max-width:400px;word-break:break-word">Very unproffesional, they put olive oil and bread on our table which we didn&#x27;t order and didn&#x27;t eat, they charged us that and the waiter himself put tip amount on the receipt without asking us. I think that the customer itself should decide to put the tip and how much it should be. I perso</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Antonio Della corte</td>
+          <td style="max-width:400px;word-break:break-word">Bellissima esperienza culinaria da Vienna a napoli un&#x27;attimo pizza che dire un buon impasto pizza cotta forno a legna eccellente</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Sumon Mahamud</td>
+          <td style="max-width:400px;word-break:break-word">This is a very good resturent in Vienna. The pizza is very testy. Any body can taste it.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Stefan Saad</td>
+          <td style="max-width:400px;word-break:break-word">The food wasnt that good,service is okay but a litrle bit flashy.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Alexander Bayr</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Lea Deman</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>MILAN ROSO</td>
+          <td style="max-width:400px;word-break:break-word">Das Restaurant hat eine wirklich schöne Atmosphäre – gemütlich, sauber und angenehm entspannt. 🍕
+Die Pizza war ausgezeichnet, eine der besten, die ich seit Langem gegessen habe – dünn, knusprig und voller Geschmack. 👌
+
+Ein kleiner Minuspunkt war jedoch der Kellner mit den langen Haaren, der sehr lus</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>M B</td>
+          <td style="max-width:400px;word-break:break-word">We had to wait more than 40 minutes for our booked table and then we were told that we would not get one and we should pay our prosecco and leave! Additionally the waiter was sexist („Schatzi ich hätte auch keine Reservierung annehmen müssen“) and impolite towards my girlfriend</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Claus Spitzer</td>
+          <td style="max-width:400px;word-break:break-word">Trotz vorherigem Anruf und langer Wartezeit keinen Tisch bekommen und vertröstet auf später. Und für ein Plastik-Zelt halten sie zu viel von sich.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Moritz M.</td>
+          <td style="max-width:400px;word-break:break-word">Obwohl wir reserviert haben und 40 Minuten gewartet haben haben wir keinen Tisch bekommen.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Julia Marschall</td>
+          <td style="max-width:400px;word-break:break-word">Das Einzige Positive war das schöne Design des Restaurants. Der Service war unaufmerksam und die Portionen winzig. Wir haben das Menü für 49 € bestellt, sind aber hungrig wieder gegangen. Das Steak war so klein, dass es wirkte, als wäre es einfach von einer anderen Portion abgeschnitten worden. Auf </td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Glendalys</td>
+          <td style="max-width:400px;word-break:break-word">Good customer service, the food was delicious!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Katja</td>
+          <td style="max-width:400px;word-break:break-word">Good food, good vibes &amp; friendly staff! Great location too -&gt; recommendation 👌🏻</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Alexand Gruber</td>
+          <td style="max-width:400px;word-break:break-word">Hatten telefonisch für 13 Personen reserviert, Emailbestätigung war zugesagt. Diese ist nicht gekommen,  wir haben per Telefon nachgefragt und wurden von dem Herren angebrüllt!
+
+Nie wieder dieses Lokal und das Schwesterlokal besuchen!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Jelena Brakus</td>
+          <td style="max-width:400px;word-break:break-word">Odlicna pica i fina usluga.
+Prijatan ambijent.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Marion Mantler</td>
+          <td style="max-width:400px;word-break:break-word">Einfach nur toll! Essensauswahl, Personal und Location. Beste Pizza Wiens!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Marwa Sultan</td>
+          <td style="max-width:400px;word-break:break-word">مطعم إيطالي لذيذ جدا، البيتزا مميزة بفرن الحطب 👌🏼</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Kateřina Jelínková</td>
+          <td style="max-width:400px;word-break:break-word">Skvělá restaurace, moc milá obsluha a vynikající jídlo.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>alina</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Oct 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Francisco Teixeira</td>
+          <td style="max-width:400px;word-break:break-word">Went to Regina Margherita a few times now.
+Very well located, in the center of Vienna, it as a good ambient.
+The food is good, not exceptional. Two of tree times the pizza was a bit burnt. The service is excellent, one of the best so far. The noise is… problematic, specially when suddenly the music </td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Oct 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Shirin Malekzadeh</td>
+          <td style="max-width:400px;word-break:break-word">Ich war vor meinem Besuch bereits etwas misstrauisch: Ich habe die Uhrzeit meiner Tischreservierung (telefonisch vereinbart) vergessen und wollte diese nachfragen. Meine Reservierung wurde anscheinend nie aufgeschrieben, demnach auch nicht gefunden. Hätte ich nicht angerufen, dann wäre ich vorm Rest</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Alex B</td>
+          <td style="max-width:400px;word-break:break-word">Wohl der allerbeste Italiener in Wien, die Pizza ist perfekt, die Pasta Gerichte an Jahreszeiten angepasst und daher auch sehr zu empfehlen. Bester Services</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Oct 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Ciprian S.</td>
+          <td style="max-width:400px;word-break:break-word">Pizza served with pieces of glass in it!
+
+During my visit, I noticed some hard fragments in my pizza that didn’t seem right. I informed the staff, but unfortunately, the situation wasn’t handled with much attention or explanation. I was disappointed by the overall response and would consider trying </td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Oct 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Paddyboy 83</td>
+          <td style="max-width:400px;word-break:break-word">Nicht mehr vergleichbar mit der Regina aus früheren Tagen. Hatten einen Tisch am Abend. Das Service war sehr mäßig, man hat das Gefühl abgefertigt zu werden. Dafür sind jedoch die Preis sehr gehoben.
+Preis-Leistung passt nicht.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Alexander Angerer</td>
+          <td style="max-width:400px;word-break:break-word">Wie immer einfach ein Stück Italien im Herzen von Wien</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Sebastien Delia</td>
+          <td style="max-width:400px;word-break:break-word">De vrais plats italiens 🍽️🇮🇹
+Pizza 4 fromages légère et excellente</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Ira Bilokon</td>
+          <td style="max-width:400px;word-break:break-word">Great Italian atmosphere, very tasty pizza and cocktails. Staff is the most pleasant I’ve ever met. Recommend to everyone who likes Italian cuisine. Delizioso 🤌🏻</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Oct 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Julia</td>
+          <td style="max-width:400px;word-break:break-word">Kann den Hype gar nicht verstehen. Sind quasi im Innenhof auf Gartenstühlen in einem Zelt gesessen, waren 8 Personen, eine Hauptspeise wurde vergessen, wurde dann 10 min später nachgebracht, ohne Entschuldigung. Getränke wurden auch vergessen (oder sie haben 30 min gedauert), Portionsgrößen für 30€ </td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Klaus Mayrhauser</td>
+          <td style="max-width:400px;word-break:break-word">Beste Pizzeria in Wien...nach zwei enttäuschenden Abenden im Oktober21 und Janner22 heute wieder top......wir bleiben eich treu</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Dietmar Laimer</td>
+          <td style="max-width:400px;word-break:break-word">Einer der besten  Italiener der stadt mit Stil und Flair👍👍</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Klaus Baschlberger</td>
+          <td style="max-width:400px;word-break:break-word">Toller Italiener</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Juan Jose Sanchez</td>
+          <td style="max-width:400px;word-break:break-word">Comida muy buena en un restaurante muy guay. Lo mejor de todo el trato recibido por George, un camarero super amable que hablaba perfectamente Español y que mostraba siempre una sonrisa. Nos ha hecho sentir como en casa en todo momento.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Oct 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>dz dz</td>
+          <td style="max-width:400px;word-break:break-word">It used to be a very nice place but they recruited a woman who is very rude with customers. All staff is cool but she had the wrong attitude.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Nocenti</td>
+          <td style="max-width:400px;word-break:break-word">Beautiful food and great service. Go here!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Peter Forstinger</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Friedrich Bahmer</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Oct 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Nicola Petrovic</td>
+          <td style="max-width:400px;word-break:break-word">Nicht Empfehlenswert und  Nicht Preiswert. Das Essen ist nicht geschmackvoll sowie die Fischplatte wo wir sehr wenig Beilagen und Shrimps erhalten haben. Fischplatte überteuert</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Felix Kainz</td>
+          <td style="max-width:400px;word-break:break-word">Hervorragendes Essen, vor allem die Pizza ist vorzüglich! Die Atmosphäre ist, vor allem drinnen, leider aufgeregt und hektisch. Das Personal gibt dennoch ihr Bestes und ist freundlich. Die Preise sind etwas hoch, vor allem wenn man auch eine Vor- oder Nachspeise essen will.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Kristine Trujic-Murvanidze</td>
+          <td style="max-width:400px;word-break:break-word">Vielen lieben Dank für den wunderbaren Abend! Alles war perfekt – das Essen, der Service und die Atmosphäre. Ihr habt meinen Geburtstag wirklich unvergesslich gemacht. Ich komme ganz bestimmt wieder! 🎉🍽️</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Ha Ma</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Selecta Bence</td>
+          <td style="max-width:400px;word-break:break-word">This Italian restaurant is run by real Italians. They make delicious Pizza in a Neapolitan style, meaning thin, soft, fluffy dough. Not too much garlic or too much salt as you would know it from cheaper places - nothing like that. Top notch taste and attentative service! Maybe a bit more on the pric</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Sep 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Melanie L.</td>
+          <td style="max-width:400px;word-break:break-word">Von italienischer Gastfreundlichkeit leider keine Spur. Gäste scheinen lästig. Der Service eher penetrant, sehr hierarchisch. Das Essen gut, die Lokalität eindeutig überbewertet.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Jolene</td>
+          <td style="max-width:400px;word-break:break-word">第一天Ribs of Vienna沒有排到 直接問店員的口袋名單！
+整間都是歐洲人
+我在台灣沒有吃過像飛雷口香糖一樣q的披薩皮
+柔軟卻有嚼勁 料給的也是毫不手軟
+這間是奧地利的義式料理 或許義大利有更好吃更正宗的 如果在維也納突然不知道要吃什麼再來（？</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Sep 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Selina Posch</td>
+          <td style="max-width:400px;word-break:break-word">Das Essen hat uns leider nicht überzeugt. Der Kaffee war ebenso nicht gut. Können die Preise auch im Hinblick auf den Service nicht nachvollziehen.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Ariel Hirsch</td>
+          <td style="max-width:400px;word-break:break-word">פיצה טובה.
+הבצק דק, הרוטב מעולה וכך גם הגבינה.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Daniel Weber</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Sep 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Teri Cosby</td>
+          <td style="max-width:400px;word-break:break-word">The food was ok. Pizza and pasta was average. The atmosphere is great. They were busy so the service wasn&#x27;t great..</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Sep 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Vahe Mkhitaryan</td>
+          <td style="max-width:400px;word-break:break-word">The pizza itself was excellent—fresh ingredients, perfectly baked, and full of flavor. Unfortunately, the service completely ruined the experience. The waiters were extremely rude and dismissive, especially towards tourists and foreigners. Their attitude made us feel unwelcome from the moment we sat</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Bianca Graf</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Ramona Kolb</td>
+          <td style="max-width:400px;word-break:break-word">Unkomplizierte Umbuchung der Reservierung, schönes Ambiente, freundliches Service. Essen herrlich, keine lange Wartezeit trotz gefülltem Lokal. Die Belegschaft überraschte meinen Sohn mit Gesang und Sprühkerze zum Geburtstag. Danke für diesen schönen Moment, wir kommen wieder ♥️</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>N</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Enrico</td>
+          <td style="max-width:400px;word-break:break-word">Ristorante italiano vero a Vienna
+Non se ne trovano molti così in cui i camerieri parlano italiano e la cucina è davvero come in Italia</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Giulio P. Cacciari</td>
+          <td style="max-width:400px;word-break:break-word">Ottimo cibo servito con professionalità e cortesia.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Elisa Palmirani Cacciari</td>
+          <td style="max-width:400px;word-break:break-word">Il cibo è davvero buono e si sente che in cucina sono italiani. I camerieri sono gentilissimi, in particolare Christian ci ha servito ed è stato molto carino. Il locale è bello e i bagni sono curati.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Sep 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>vaibhav bansal</td>
+          <td style="max-width:400px;word-break:break-word">BEWARE: there have some really bad waiters. The one we got, charged us for tap water and olive oil that was given to us in the side.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Paulo Machado</td>
+          <td style="max-width:400px;word-break:break-word">Tudo ok
+
+Comida saborosa
+
+Serviço rápido e atencioso
+
+Ambiente aconchegante</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Sep 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Leo schlau</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Irina Lemesheva</td>
+          <td style="max-width:400px;word-break:break-word">Tuna salad and Fruto Di mare was amazing!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Aug 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>ahmad doski</td>
+          <td style="max-width:400px;word-break:break-word">A disrespectful restaurant that does not respect customers. The waiters are disrespectful and do not appreciate each other. The food is very average and has no good taste.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Aug 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>V Siou</td>
+          <td style="max-width:400px;word-break:break-word">Επισκεφθήκαμε το εστιατόριο ένα βραδινό του Αυγούστου , και μείναμε ικανοποιημένοι από το φαγητό που ήταν αρκετά καλό, όπως και αρκετά συμπαθητικό ήταν και το εσωτερικό του μαγαζιού όπου και μας έβαλαν να καθίσουμε. Όμως η εξυπηρέτηση ήταν απαράδεκτη, τους μιλούσαμε Αγγλικά (που σαφέστατα καταλάβαιν</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Polly Bilera</td>
+          <td style="max-width:400px;word-break:break-word">Love this place! My friend and I come here every time I visit Vienna, would recommend booking a table ahead though.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>AAS A</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Arantxa Guillen</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Aug 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Felix Behnisch</td>
+          <td style="max-width:400px;word-break:break-word">Das Essen ist sehr gut und gerade Fans von neapolitanischer Pizza werde sich hier wohl fühlen.
+Ich war mehrfach hier essen und würde auch für das Essen immer wiederkommen, aber der Service hat sich in den letzten zwei Jahren leider verschlechtert (deswegen nur 3 Sterne): sehr unfreundliches Personal</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Silli H</td>
+          <td style="max-width:400px;word-break:break-word">Ja, sehr freundlich und schön!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Christian Dohr</td>
+          <td style="max-width:400px;word-break:break-word">Wenn sie eine gute Pizzeria in der Innenstadt gibt, dann ist die definitiv dabei. Egal was man isst, es ist ausgesprochen gut. Ein gutes Glas Wein dazu und der Abend ist perfekt. Das Service ist sehr aufmerksam und erfüllt jeden Wunsch. Es ist zwar etwas teurer aber die Qualität ist wirklich sehr gu</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Samantha Marshall</td>
+          <td style="max-width:400px;word-break:break-word">Pushy rude host but everything else great. Good waiter. Loved the pizza, tasted high quality like in Italy.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Andrea Gassner</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Mahmut Zenciroğlu</td>
+          <td style="max-width:400px;word-break:break-word">Efsane pizzalar, güzel hizmet. Ama Tip mecbur tutulmaz bu ayıptır. Ben belki %20 vericem mecburi görünce ekstra ödemedim.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Ulli Traxler</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Oliver King</td>
+          <td style="max-width:400px;word-break:break-word">Das Essen war sehr lecker, der Service war wirklich hervorragend und die Weinempfehlung top. Also insgesamt wirklich sehr gut!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Martin Hofstetter</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Maria Hüngsberg</td>
+          <td style="max-width:400px;word-break:break-word">Im Herzen der Innenstadt aber doch etwas versteckt im Innenhof gelegenes kleines Stückchen Italien. Das Essen war hervorragend jedoch wird alles übertroffen von dem Service, wo der Restaurantleiter sich namentlich vorstellt und man das Gefühl bekommt ehrlich Willkommen zu sein. Bitte unbedingt reser</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Francesca Galvagno</td>
+          <td style="max-width:400px;word-break:break-word">Pizza ottima, servizio formidabile!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Volker Gagelmann</td>
+          <td style="max-width:400px;word-break:break-word">Pizza wie in Neapel ..
+sicher eine der besten Pizzerien in Wien .
+Top Service und gute Pizza.
+Sehr freundliches Personal
+Schöner Innenhof mit Sommerterrasse.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Aida Al-Tamimi</td>
+          <td style="max-width:400px;word-break:break-word">مطعم ايطالي اصيل الاطباق لذيذه والخدمه رائعه والموظف اللطيف البيرتو يعطي تفاصيل لجميع الاطباق اشكر الجميع على لطفهم</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Kamil</td>
+          <td style="max-width:400px;word-break:break-word">Kawałek Włoch w Wiedniu! Bardzo polecam to miejsce jeśli masz ochotę na dobre, włoskie jedzenie. Jest przepysznie! Klimat bardzo przyjemny, obsługa na bardzo dobrym poziomie. Na pewno wrócę! Warto zarezerwować wcześniej stolik, żeby uniknąć czekania w kolejce.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Hermann Müller</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Marcello Caputo</td>
+          <td style="max-width:400px;word-break:break-word">Sono stato da Regina Margherita a Ferragosto, pranzato in giardino. Il servizio è stato molto cordiale e attento. Abbiamo scelto il menù degustazione: piatti molto buoni e ben presentati dall’inizio alla fine. Molto buono anche il tris di dolcetti finali, perfetto per concludere la cena. Bella esper</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Alessandro M.</td>
+          <td style="max-width:400px;word-break:break-word">Scoperto per caso durante una visita a  Vienna. Buon locale, buona accoglienza e pizza ottima e ben digerita. Tempi di attesa ridotti a zero per il tavolo e quasi a zero per la pizza. Buona esperienza, consigliato.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>José</td>
+          <td style="max-width:400px;word-break:break-word">Mucho calor Vinimos en ola de calor y para mitigarlo te nebulizan agua … mejor sería poner ventiladores . Comimos pizzas que estaban bastante bien . Buen aceite picante y el postre de limón napolitano exquisito. El servicio y el ambiente muy bueno</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>christian schwarz</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Emil Sulek</td>
+          <td style="max-width:400px;word-break:break-word">Liebs einfach. Super sympathisch. Angenehme Atmosphäre. Wirklich nur zum weiterempfehlen. Top!!!!!!!  👌🏻</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Alexander Heidinger</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Mateusz Bil</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Renata Nikolic</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>i-knoo X</td>
+          <td style="max-width:400px;word-break:break-word">المطعم لذيذ مره الباستا عنده والبيتزا ايضا وتعاملهم كويس لكن مارضى يجلسنا برا قال انه الي برا بحجز
+واجواء المكان هاديه واسعاره معقوله جدا</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Aug 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>charles Ahn</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Ana Lisa VETERE ARELLANO</td>
+          <td style="max-width:400px;word-break:break-word">The fish was great!!!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Aug 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Gennaro Cuozzo</td>
+          <td style="max-width:400px;word-break:break-word">Das Essen in diesem Restaurant ist einigermaßen in Ordnung, das Personal bemüht sich und bleibt professionell – aber all das wird komplett durch das Verhalten des Besitzers zunichtegemacht. Ehrlich gesagt habe ich so viel Arroganz und Unhöflichkeit schon lange nicht mehr erlebt. Er spricht mit den G</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>HÜSEYİN ÇALIŞKAN</td>
+          <td style="max-width:400px;word-break:break-word">Super</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Aug 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Christian</td>
+          <td style="max-width:400px;word-break:break-word">SCHWARZE SCHAFE
+
+Wir waren vor kurzem in der Regina Margarita einen Besuch abstatten, nachdem wir in der Vergangenheit schon ein paar mal dort waren und die Erfahrungen jedesmal gemischt waren, von Desinteressiertem Service bis hin zur dreisten Trinkgeldbuchung. Wir waren zu zweit dort, hatten einen</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Maryam Alshamsi</td>
+          <td style="max-width:400px;word-break:break-word">I liked the atmosphere</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Stefanie Doris</td>
+          <td style="max-width:400px;word-break:break-word">A wonderful place to dine in! Staff is extremely friendly, very attentive but without putting pressure on you. It seems like they can read your mind while staying calm and helpful when questions arise.
+For our first visit we called at around 4 PM to reserve a table for the same evening and they very</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Love Republic world of jewellery</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Marcello</td>
+          <td style="max-width:400px;word-break:break-word">Fantastico ristorante italiano nel cuore di Vienna! Servizio di livello altissimo</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Raffaella Bruno</td>
+          <td style="max-width:400px;word-break:break-word">Pizza Napoletana super, più buona anche di pizzerie italiane! Servizio impeccabile.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Emily Fitzgibbons</td>
+          <td style="max-width:400px;word-break:break-word">I have heard about this Vienna pizza spots for many months from my Austrian boyfriend (I am australian) and finally got to experience it for myself last night. It was everything I expected and more! Delicious, fresh and melt in your mouth Neapolitan style pizza enjoyed within the most relaxing yet e</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Gina Villanueva-Weinzierl</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Massimo Pellegrino</td>
+          <td style="max-width:400px;word-break:break-word">Un buon compromesso tra qualità, prezzo, servizio e ambiente/atmosfera.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Josef Borbely</td>
+          <td style="max-width:400px;word-break:break-word">Das Regina Margherita ist für alle Italo Fans, die feine Spitzenküche erleben und speisen wollen.
+Wer kleine Mengen auf dem Teller haben möchte, ist hier genau richtig.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Da Vid</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Timothy Moore</td>
+          <td style="max-width:400px;word-break:break-word">Pberragende Pizza, sehr guter Service und ein hervorragendes Ambiente</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Donald Sievering</td>
+          <td style="max-width:400px;word-break:break-word">Für uns Familie die beste Pizzeria in Wien. Wir werden wie Familien Mitglieder angesehen und auch so bewirtet und behandelt</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Yossi Boker</td>
+          <td style="max-width:400px;word-break:break-word">It&#x27;s a good Italian restaurant, but less than a perfect one. We ordered two pasta, sea bass fillete on mash potatoes and a salad. The pasta&#x27;s sea food was fresh and of a high quality, however the pasta was over cooked. The fish dish was tasty, however the fish portions were on the small si</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>serkan ari</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Стефан Георгиев</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Jul 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Okan Kzx</td>
+          <td style="max-width:400px;word-break:break-word">“Der Tisch war unbequem und die Sessel wackelten. Das Essen war leider nur mittelmäßig. Besonders enttäuschend war der Tischservice beim Bezahlen, der unangebracht wirkte.”</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Jul 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Lukasz Sztwiorok</td>
+          <td style="max-width:400px;word-break:break-word">Unpleasant service</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Jul 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Martin Wildauer</td>
+          <td style="max-width:400px;word-break:break-word">Sehr unfreundliches Personal uns ist der die Bedienung verweigert worden</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Juergen Elmer</td>
+          <td style="max-width:400px;word-break:break-word">Alles perfekt - wir bekamen sehr schnell Platz, besser ist dennoch zu reservieren. Das Essen war so gut, dass wir gleich zwei Mal heute (nachmittags &amp; abends) hier her kamen. Das Servicepersonal war auch sehr umsichtig und freundlich. Wir kommen bald wieder - vielen Dank und klare Empfehlung!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Jul 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Cecilia Lemos</td>
+          <td style="max-width:400px;word-break:break-word">Me and my family went out to eat after a long day and found this restaurant. We thought the menu seemed nice and decided to ask for a table for 4, the front desk guy told us it would take about 30 minutes (15 minutes to 9 o’clock pm) so we stood outside and waited for him to call us to sit. About 15</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Richard Hritcu</td>
+          <td style="max-width:400px;word-break:break-word"></td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>lumy gstettenhofer</td>
+          <td style="max-width:400px;word-break:break-word">Ich kann dieses Restaurant empfehlen für jeden der unbedingt nach Italien will aber nicht viel Geld ausgeben will.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Mohammed Sulimani</td>
+          <td style="max-width:400px;word-break:break-word">We found this resturant by coincidence but we were surprised with excellent service and hospitality, and delicious food. highly recommend. And it is always better to have reservation.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Patrick Straub</td>
+          <td style="max-width:400px;word-break:break-word">Habe großartige dinge schon gehört, und genau so war es!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Paul Wagner</td>
+          <td style="max-width:400px;word-break:break-word">Beste Pizza die ich seit langem gegessen habe! Falls man mal Italienisch essen gehen möchte, ist das die perfekte Wahl. Nettes Personal  und schöne Atmosphäre. Komme definitiv wieder!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Esteban Lafuente</td>
+          <td style="max-width:400px;word-break:break-word">Great restaurant! Food was excellent, and staff was friendly and always helpful. A place to put in your &quot;must go&quot; list of restaurants in Vienna</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Gerhard Zieger</td>
+          <td style="max-width:400px;word-break:break-word">Das Regina Margherita zählt für mich seit fast Jahrzehnten zum italienischen Fixpunkt sowohl Business zu Mittag alsauch gemütlich am Abend, im Sommer kommt noch der geniale Aussenbereich dazu und das mit großer italienscher Grandezza</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Jul 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Minela Hodzic</td>
+          <td style="max-width:400px;word-break:break-word">Wenn man als Gast von Manager die Zigarette aus der Hand rausgerissen bekommt und man wie ein 12 Jähriges Kind behandelt wird und ärger kriegt weil man draussen auf der Terrasse rauchen will dann hat man 0 Sterne verdient.
+
+Zudem wollte ich nur klar machen, dass es nicht das erste mal das ich dort e</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Jul 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Ca Lot</td>
+          <td style="max-width:400px;word-break:break-word">Das Restaurant ist an sich sehr nett, mit einem tollen Außenbereich und einem einladenden Ambiente.
+Das Essen war ebenfalls sehr gut.
+Jedoch war der Service schlichtweg schrecklich. Als jemand, der selbst in der Gastrobranche tätig ist, muss ich sagen: Ein derart unmögliches Verhalten ist inakzeptab</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Mohamed salem</td>
+          <td style="max-width:400px;word-break:break-word">الاكل عنده لذيذ قمت بطلب مارقريتا و سلطه و باستا يستحق التجربه</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>cristina frolov</td>
+          <td style="max-width:400px;word-break:break-word">good pizza very taste place and good atmosphere, recommend</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Lorenzo Insigne</td>
+          <td style="max-width:400px;word-break:break-word">È molto difficile trovare cibo italiano di qualità fuori dall&#x27;Italia e questi sono sicuramente di prim&#x27;ordine.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Jun 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Casta</td>
+          <td style="max-width:400px;word-break:break-word">Did not have a reservation so could only sit inside. Pizza was fantastic and our waitress Cigdem was super helpful. Relatively expensive. House red wine nice but needs to be stored somewhere not exposed to the ovens!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Jun 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>manipul</td>
+          <td style="max-width:400px;word-break:break-word">Ich muss ein Stern geben weil alle anderen Rezensionen totaaal überbewertet sind.
+
+Die Pizza an sich ist überhaupt nichts besonderes, nicht dass sie schlecht schmeckt, aber einfach nicht das was es laut den Rezensionen scheint..
+Tomatensauce komplett langweilig, kein Kick, kein Wow Effekt.
+Allgemein</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Jun 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Morteza Sayarpour</td>
+          <td style="max-width:400px;word-break:break-word">Food was good (not fantastic) and ambiance was good (probably on the louder side). We have traveled to different countries, and i have to say,  never ever we found as rude of a waiter as in Regina. We have two kids and order few things like sauce on the side and things like that.. the waiter would a</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Jun 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Pascal F</td>
+          <td style="max-width:400px;word-break:break-word">Pizza super, jedoch leider sehr laut und voll😅</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jun 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>hilal tuzlakoğlu</td>
+          <td style="max-width:400px;word-break:break-word">Margarita ve ton balıklı pizza yedik, lezzetliydi. Ortam samimi ve güzeldi. Haziran sonu ve akşam olmasına rağmen iç kısım sıcaktı, dışarıya rez yapın. Rezervasyonumuz yoktu, 30 dk sonra girdik, teşekkürler</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jun 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Gerhard Krepela</td>
+          <td style="max-width:400px;word-break:break-word">Alles wunderbar und bei der Hitze ein sehr angenehmes Klima !!! Schöne Tischdekoration</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jun 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Björn Theursus</td>
+          <td style="max-width:400px;word-break:break-word">Preis-Quantitäts-Verhältnis extrem schlecht. Eigentlich das schlechteste, das ich bislang erlebt habe. Und ich gehe oft essen; auch ins Regina Margherita. Hatte bisher immer Pizzen oder Salate, die absolut in Ordnung sind. Dabei gibt es nichts auszusetzen. Aber Fisch um 25, der nicht einmal normale </td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Jun 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Henry LG</td>
+          <td style="max-width:400px;word-break:break-word">We went one night and the two hand made pasta were prefect. Just as I was about to put down a 5 star review, we went back the second time, then disaster...
+
+On first night we had the seafood pasta. Very well done with the best ingredients - blue mussels like mussels, big prawn with tail shell and on</td>
+          <td class="right">No</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="legal-note">
+  <strong>Legal Notice:</strong> This report was produced using automated data analysis. All quantitative data is derived directly from the source review file provided. Qualitative interpretations reflect patterns in the analysed dataset and should be read as analytical observations, not professional advice. <strong>TRIC accepts no liability for decisions or actions taken on the basis of this report.</strong> · TRIC — The Hospitality Intelligence Company · Confidential · For internal use only.
+</div>
+
+</div>
+</body>
+</html>
