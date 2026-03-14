@@ -1,0 +1,2812 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRIC Report — Wienerwald</title>
+<style>
+  :root {
+    --black:#0f0f0f;--gold:#C9A84C;--gold-light:#f5e9c8;--cream:#fafaf8;
+    --white:#ffffff;--grey-100:#f4f4f2;--grey-200:#e8e8e4;--grey-300:#d0d0ca;
+    --grey-500:#888880;--grey-700:#444440;
+    --green:#1a5e38;--green-light:#e8f4ee;--green-mid:#2d7a4f;
+    --red:#9b2226;--red-light:#fdf0f0;--red-mid:#c0392b;
+    --amber:#8a5a00;--amber-light:#fef6e4;
+    --blue:#1a3a5c;--blue-light:#e8eef6;
+    --font-body:-apple-system,'Segoe UI',Arial,sans-serif;
+    --font-mono:'SF Mono','Fira Code','Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font-body);background:var(--grey-100);color:var(--grey-700);font-size:14px;line-height:1.6}
+  .page-wrap{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+  .report-header{background:var(--black);margin-bottom:32px}
+  .gold-bar{height:3px;background:var(--gold)}
+  .header-inner{max-width:1100px;margin:0 auto;padding:40px 24px 36px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
+  .header-brand{font-size:10px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;font-weight:700;margin-bottom:12px;font-family:var(--font-mono)}
+  .header-title{font-size:32px;font-weight:300;color:var(--white);letter-spacing:-.5px;line-height:1.2}
+  .header-title strong{font-weight:700}
+  .header-meta{text-align:right;color:var(--grey-500);font-size:13px;line-height:1.8;flex-shrink:0}
+  .header-meta span{display:block}
+  .header-meta .score-badge{font-size:28px;font-weight:700;color:var(--gold);line-height:1;margin-bottom:4px}
+  .section{background:var(--white);border-radius:8px;margin-bottom:20px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .section-header{padding:18px 24px 14px;border-bottom:1px solid var(--grey-200);display:flex;align-items:baseline;gap:12px}
+  .section-num{font-family:var(--font-mono);font-size:10px;color:var(--gold);font-weight:700;letter-spacing:1px}
+  .section-title{font-size:16px;font-weight:700;color:var(--black);letter-spacing:-.2px}
+  .section-body{padding:24px}
+  .section-body.no-pad{padding:0}
+  .so-what{background:var(--grey-100);border-left:3px solid var(--gold);padding:12px 16px;margin-top:20px;font-size:13px;color:var(--grey-700);border-radius:0 4px 4px 0}
+  .so-what strong{color:var(--black)}
+  .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+  .kpi-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .kpi-card{background:var(--grey-100);border-radius:8px;padding:20px;border:1px solid var(--grey-200);position:relative;overflow:hidden}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .kpi-card.primary::before{background:var(--gold)}
+  .kpi-card.positive::before{background:var(--green)}
+  .kpi-card.negative::before{background:var(--red)}
+  .kpi-card.neutral::before{background:var(--grey-300)}
+  .kpi-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey-500);margin-bottom:8px;font-family:var(--font-mono)}
+  .kpi-value{font-size:36px;font-weight:700;color:var(--black);line-height:1;margin-bottom:6px;letter-spacing:-1px}
+  .kpi-value.gold{color:var(--gold)}
+  .kpi-value.green{color:var(--green)}
+  .kpi-value.red{color:var(--red)}
+  .kpi-sub{font-size:12px;color:var(--grey-500);line-height:1.5}
+  .kpi-sub strong{color:var(--grey-700)}
+  .delta{display:inline-flex;align-items:center;gap:3px;font-size:13px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:6px}
+  .delta.up{background:var(--green-light);color:var(--green)}
+  .delta.down{background:var(--red-light);color:var(--red)}
+  .alert-box{border-radius:6px;padding:16px 20px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start}
+  .alert-box.high{background:var(--red-light);border-left:4px solid var(--red)}
+  .alert-box.medium{background:var(--amber-light);border-left:4px solid var(--amber)}
+  .alert-box.ok{background:var(--green-light);border-left:4px solid var(--green)}
+  .alert-icon{font-size:18px;margin-top:1px;flex-shrink:0}
+  .alert-title{font-size:14px;font-weight:700;margin-bottom:4px}
+  .alert-box.high .alert-title{color:var(--red)}
+  .alert-box.medium .alert-title{color:var(--amber)}
+  .alert-box.ok .alert-title{color:var(--green)}
+  .alert-body{font-size:13px;color:var(--grey-700)}
+  .data-table{width:100%;border-collapse:collapse;font-size:13px}
+  .data-table th{background:var(--black);color:var(--gold);font-family:var(--font-mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:10px 14px;text-align:left;font-weight:700}
+  .data-table th.right{text-align:right}
+  .data-table td{padding:9px 14px;border-bottom:1px solid var(--grey-200);color:var(--grey-700);vertical-align:middle}
+  .data-table td.right{text-align:right;font-family:var(--font-mono);font-size:12px}
+  .data-table td.mono{font-family:var(--font-mono);font-size:12px}
+  .data-table tr:last-child td{border-bottom:none}
+  .data-table tr:nth-child(even) td{background:var(--grey-100)}
+  .data-table tr.total-row td{background:var(--grey-100);font-weight:700;color:var(--black);border-top:2px solid var(--grey-300)}
+  .data-table tr.highlight td{background:var(--gold-light)}
+  .star-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .star-label{font-size:13px;font-weight:700;color:var(--grey-700);width:24px;flex-shrink:0}
+  .star-bar-wrap{flex:1;background:var(--grey-200);border-radius:3px;height:10px}
+  .star-bar-fill{height:10px;border-radius:3px}
+  .star-count{font-family:var(--font-mono);font-size:12px;color:var(--grey-700);width:36px;text-align:right;flex-shrink:0}
+  .star-pct{font-family:var(--font-mono);font-size:11px;color:var(--grey-500);width:40px;flex-shrink:0}
+  .rating-pill{display:inline-block;padding:2px 8px;border-radius:12px;font-family:var(--font-mono);font-size:12px;font-weight:700}
+  .rating-pill.good{background:var(--green-light);color:var(--green)}
+  .rating-pill.mid{background:var(--amber-light);color:var(--amber)}
+  .rating-pill.bad{background:var(--red-light);color:var(--red)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .badge.positive{background:var(--green-light);color:var(--green)}
+  .badge.negative{background:var(--red-light);color:var(--red)}
+  .badge.mixed{background:var(--amber-light);color:var(--amber)}
+  .badge.neutral{background:var(--grey-100);color:var(--grey-500)}
+  .theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .theme-card{border-radius:6px;padding:16px;border:1px solid var(--grey-200)}
+  .theme-card.strength{border-left:3px solid var(--green);background:var(--green-light)}
+  .theme-card.weakness{border-left:3px solid var(--red);background:var(--red-light)}
+  .theme-rank{font-family:var(--font-mono);font-size:11px;color:var(--grey-500);margin-bottom:4px}
+  .theme-name{font-size:14px;font-weight:700;margin-bottom:8px}
+  .theme-card.strength .theme-name{color:var(--green)}
+  .theme-card.weakness .theme-name{color:var(--red)}
+  .theme-stats{display:flex;gap:16px;margin-bottom:10px}
+  .theme-stat{font-size:11px;color:var(--grey-500)}
+  .theme-stat strong{font-family:var(--font-mono);font-size:13px;color:var(--black);display:block}
+  .theme-quote{font-size:12px;font-style:italic;color:var(--grey-700);border-top:1px solid rgba(0,0,0,.08);padding-top:8px;margin-top:4px;line-height:1.5}
+  .theme-quote::before{content:'“'}
+  .theme-quote::after{content:'”'}
+  .draft-card{border:1px solid var(--grey-200);border-radius:6px;margin-bottom:16px;overflow:hidden}
+  .draft-original{background:var(--grey-100);padding:14px 18px;font-size:13px;border-bottom:1px solid var(--grey-200)}
+  .draft-meta{font-size:11px;font-family:var(--font-mono);color:var(--grey-500);margin-bottom:6px}
+  .draft-text{color:var(--grey-700);font-style:italic}
+  .draft-response{background:var(--white);padding:14px 18px}
+  .draft-response-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);font-family:var(--font-mono);margin-bottom:8px}
+  .draft-response-text{font-size:13px;color:var(--grey-700);line-height:1.6}
+  .draft-cta{background:var(--blue-light);border:1px solid #c5d5e8;border-radius:6px;padding:14px 18px;font-size:13px;color:var(--blue);display:flex;align-items:center;gap:10px;margin-top:4px}
+  .subsection-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--grey-500);font-family:var(--font-mono);margin:24px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--grey-200)}
+  .subsection-label:first-child{margin-top:0}
+  .legal-note{background:var(--grey-100);border-radius:6px;padding:16px 20px;font-size:11px;color:var(--grey-500);margin-top:32px;line-height:1.7;border:1px solid var(--grey-200)}
+  .legal-note strong{color:var(--grey-700)}
+  @media(max-width:700px){
+    .kpi-grid{grid-template-columns:1fr 1fr}
+    .theme-grid{grid-template-columns:1fr}
+    .header-inner{flex-direction:column;align-items:flex-start}
+    .header-meta{text-align:left}
+  }
+  @media(max-width:480px){.kpi-grid,.kpi-grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="report-header">
+  <div class="gold-bar"></div>
+  <div class="header-inner">
+    <div>
+      <div class="header-brand">TRIC — The Hospitality Intelligence Company</div>
+      <div class="header-title"><strong>Wienerwald</strong> · Google Maps Intelligence Report</div>
+    </div>
+    <div class="header-meta">
+      <span class="score-badge">3.50 ★</span>
+      <br>
+      250 reviews analysed<br>
+      May 2013 – Feb 2026<br>
+      Erstellt: 14. März 2026
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">KPI Dashboard — Executive Summary</span>
+  </div>
+  <div class="section-body">
+    <div class="kpi-grid">
+      <div class="kpi-card primary">
+        <div class="kpi-label">Overall Google Score</div>
+        <div class="kpi-value gold">3.50 ★</div>
+        <div class="kpi-sub"><strong>250</strong> total reviews</div>
+      </div>
+      <div class="kpi-card positive">
+        <div class="kpi-label">Last 90 Days</div>
+        <div class="kpi-value green">3.91 ★</div>
+        <div class="delta up">▲ +0.42 vs. overall</div>
+        <div class="kpi-sub" style="margin-top:8px"><strong>23</strong> reviews in period</div>
+      </div>
+      <div class="kpi-card neutral">
+        <div class="kpi-label">Owner Response Rate</div>
+        <div class="kpi-value">24.4%</div>
+        <div class="kpi-sub"><strong>61</strong> of 250 reviews answered</div>
+      </div>
+    </div>
+    <div class="kpi-grid-2">
+      <div class="kpi-card positive">
+        <div class="kpi-label">Positive Reviews (4–5 ★)</div>
+        <div class="kpi-value green">146</div>
+        <div class="kpi-sub"><strong>58.4%</strong> of all reviews<br>Last 90 Days: <strong>16</strong> (69.6%)</div>
+      </div>
+      <div class="kpi-card negative">
+        <div class="kpi-label">Negative Reviews (1–2 ★)</div>
+        <div class="kpi-value red">73</div>
+        <div class="kpi-sub"><strong>29.2%</strong> of all reviews<br>Last 90 Days: <strong>5</strong> (21.7%)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">Executive Summary</span>
+  </div>
+  <div class="section-body">
+    <p style="font-size:14px;line-height:1.7;color:var(--grey-500);font-style:italic;">
+[ AI-generated executive summary will appear here once the Claude integration is active. This section will contain a 3–5 sentence narrative summarising the key findings: overall score, trend direction, top strengths, top weaknesses, and a headline recommendation. ]
+    </p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">03a</span>
+    <span class="section-title">Alerts</span>
+  </div>
+  <div class="section-body">
+    <p style="font-size:13px;line-height:1.7;color:var(--grey-500);font-style:italic;margin-bottom:16px;">
+[ AI-generated alerts will appear here. These will flag actionable issues detected in the review data, ranked by severity. ]
+    </p>
+    <div class="alert-box medium">
+      <div class="alert-icon">⚠</div>
+      <div>
+        <div class="alert-title">Alert Placeholder — Medium Severity</div>
+        <div class="alert-body">An automatically detected issue will appear here once the AI analysis layer is active.</div>
+      </div>
+    </div>
+    <div class="alert-box ok">
+      <div class="alert-icon">✓</div>
+      <div>
+        <div class="alert-title">Positive Signal Placeholder</div>
+        <div class="alert-body">A detected positive trend will appear here once the AI analysis layer is active.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-title">Star Rating Distribution</span>
+  </div>
+  <div class="section-body">
+    <div style="max-width:520px;margin-bottom:24px">
+      
+        <div class="star-row">
+          <div class="star-label">5★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:38.8%;background:#1a5e38;"></div></div>
+          <div class="star-count">97</div>
+          <div class="star-pct">38.8%</div>
+        </div>
+        <div class="star-row">
+          <div class="star-label">4★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:19.6%;background:#2d7a4f;"></div></div>
+          <div class="star-count">49</div>
+          <div class="star-pct">19.6%</div>
+        </div>
+        <div class="star-row">
+          <div class="star-label">3★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:12.4%;background:#d0d0ca;"></div></div>
+          <div class="star-count">31</div>
+          <div class="star-pct">12.4%</div>
+        </div>
+        <div class="star-row">
+          <div class="star-label">2★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:10.8%;background:#e07060;"></div></div>
+          <div class="star-count">27</div>
+          <div class="star-pct">10.8%</div>
+        </div>
+        <div class="star-row">
+          <div class="star-label">1★</div>
+          <div class="star-bar-wrap"><div class="star-bar-fill" style="width:18.4%;background:#9b2226;"></div></div>
+          <div class="star-count">46</div>
+          <div class="star-pct">18.4%</div>
+        </div>
+    </div>
+    <table class="data-table" style="max-width:480px">
+      <thead><tr><th>Rating</th><th class="right">Count</th><th class="right">Share</th><th class="right">Last 90 Days</th></tr></thead>
+      <tbody>
+        
+        <tr><td>5 ★</td><td class="right">97</td><td class="right">38.8%</td><td class="right">13</td></tr>
+        <tr><td>4 ★</td><td class="right">49</td><td class="right">19.6%</td><td class="right">3</td></tr>
+        <tr><td>3 ★</td><td class="right">31</td><td class="right">12.4%</td><td class="right">2</td></tr>
+        <tr><td>2 ★</td><td class="right">27</td><td class="right">10.8%</td><td class="right">2</td></tr>
+        <tr><td>1 ★</td><td class="right">46</td><td class="right">18.4%</td><td class="right">3</td></tr>
+        <tr class="total-row"><td>4–5★ (Positive)</td><td class="right">146</td><td class="right">58.4%</td><td class="right">16</td></tr>
+        <tr class="total-row"><td>1–2★ (Negative)</td><td class="right">73</td><td class="right">29.2%</td><td class="right">5</td></tr>
+      </tbody>
+    </table>
+    <div class="so-what"><strong>So what:</strong> 58.4% positive vs. 29.2% negative. Last 90 Days negative share: 21.7%.</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <span class="section-title">Star Rating by Year</span>
+  </div>
+  <div class="section-body no-pad">
+    <table class="data-table">
+      <thead><tr><th>Year</th><th class="right">Reviews</th><th class="right">Avg Rating</th><th class="right">1–2★ Share</th><th class="right">4–5★ Share</th><th class="right">Responded</th><th class="right">Resp. Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">2013</td>
+          <td class="right">2</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td class="right" style="color:var(--red)">50.0%</td>
+          <td class="right" style="color:var(--green)">50.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2015</td>
+          <td class="right">1</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td class="right" style="color:var(--red)">100.0%</td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2016</td>
+          <td class="right">10</td>
+          <td class="right"><span class="rating-pill good">4.10</span></td>
+          <td class="right" style="color:var(--green)">10.0%</td>
+          <td class="right" style="color:var(--green)">80.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2017</td>
+          <td class="right">16</td>
+          <td class="right"><span class="rating-pill bad">3.31</span></td>
+          <td class="right" style="color:var(--green)">18.8%</td>
+          <td class="right" style="color:var(--green)">50.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2018</td>
+          <td class="right">30</td>
+          <td class="right"><span class="rating-pill bad">3.23</span></td>
+          <td class="right" style="color:var(--red)">36.7%</td>
+          <td class="right" style="color:var(--green)">43.3%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2019</td>
+          <td class="right">35</td>
+          <td class="right"><span class="rating-pill mid">3.63</span></td>
+          <td class="right" style="color:var(--amber)">22.9%</td>
+          <td class="right" style="color:var(--green)">62.9%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2020</td>
+          <td class="right">7</td>
+          <td class="right"><span class="rating-pill good">4.57</span></td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2021</td>
+          <td class="right">10</td>
+          <td class="right"><span class="rating-pill mid">3.70</span></td>
+          <td class="right" style="color:var(--amber)">20.0%</td>
+          <td class="right" style="color:var(--green)">50.0%</td>
+          <td class="right">3</td>
+          <td class="right" style="color:var(--amber)">30.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2022</td>
+          <td class="right">19</td>
+          <td class="right"><span class="rating-pill bad">3.37</span></td>
+          <td class="right" style="color:var(--red)">31.6%</td>
+          <td class="right" style="color:var(--green)">57.9%</td>
+          <td class="right">5</td>
+          <td class="right" style="color:var(--red)">26.3%</td>
+        </tr>
+        <tr>
+          <td class="mono">2023</td>
+          <td class="right">31</td>
+          <td class="right"><span class="rating-pill bad">3.19</span></td>
+          <td class="right" style="color:var(--red)">38.7%</td>
+          <td class="right" style="color:var(--green)">54.8%</td>
+          <td class="right">11</td>
+          <td class="right" style="color:var(--amber)">35.5%</td>
+        </tr>
+        <tr>
+          <td class="mono">2024</td>
+          <td class="right">37</td>
+          <td class="right"><span class="rating-pill bad">3.19</span></td>
+          <td class="right" style="color:var(--red)">43.2%</td>
+          <td class="right" style="color:var(--green)">48.6%</td>
+          <td class="right">4</td>
+          <td class="right" style="color:var(--red)">10.8%</td>
+        </tr>
+        <tr>
+          <td class="mono">2025</td>
+          <td class="right">40</td>
+          <td class="right"><span class="rating-pill mid">3.88</span></td>
+          <td class="right" style="color:var(--amber)">22.5%</td>
+          <td class="right" style="color:var(--green)">72.5%</td>
+          <td class="right">26</td>
+          <td class="right" style="color:var(--green)">65.0%</td>
+        </tr>
+        <tr class="highlight">
+          <td class="mono">2026&nbsp;YTD</td>
+          <td class="right">12</td>
+          <td class="right"><span class="rating-pill mid">3.58</span></td>
+          <td class="right" style="color:var(--amber)">25.0%</td>
+          <td class="right" style="color:var(--green)">58.3%</td>
+          <td class="right">12</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <span class="section-title">Last 12 Months — Monthly Deep Dive</span>
+  </div>
+  <div class="section-body no-pad">
+    <table class="data-table">
+      <thead><tr><th>Month</th><th class="right">Reviews</th><th class="right">Avg Rating</th><th class="right">1–2★ Share</th><th class="right">4–5★ Share</th><th class="right">Responded</th><th class="right">Resp. Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">Mar 2025</td>
+          <td class="right">1</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td class="right" style="color:var(--red)">100.0%</td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Apr 2025</td>
+          <td class="right">7</td>
+          <td class="right"><span class="rating-pill good">4.43</span></td>
+          <td class="right" style="color:var(--green)">14.3%</td>
+          <td class="right" style="color:var(--green)">85.7%</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--red)">14.3%</td>
+        </tr>
+        <tr>
+          <td class="mono">May 2025</td>
+          <td class="right">0</td>
+          <td class="right"><span class="rating-pill bad">0.00</span></td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jun 2025</td>
+          <td class="right">2</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td class="right" style="color:var(--red)">50.0%</td>
+          <td class="right" style="color:var(--green)">50.0%</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--amber)">50.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jul 2025</td>
+          <td class="right">2</td>
+          <td class="right"><span class="rating-pill good">4.50</span></td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Aug 2025</td>
+          <td class="right">3</td>
+          <td class="right"><span class="rating-pill mid">3.67</span></td>
+          <td class="right" style="color:var(--red)">33.3%</td>
+          <td class="right" style="color:var(--green)">66.7%</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--amber)">33.3%</td>
+        </tr>
+        <tr>
+          <td class="mono">Sep 2025</td>
+          <td class="right">0</td>
+          <td class="right"><span class="rating-pill bad">0.00</span></td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Oct 2025</td>
+          <td class="right">2</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td class="right" style="color:var(--red)">50.0%</td>
+          <td class="right" style="color:var(--green)">50.0%</td>
+          <td class="right">2</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Nov 2025</td>
+          <td class="right">4</td>
+          <td class="right"><span class="rating-pill bad">3.25</span></td>
+          <td class="right" style="color:var(--amber)">25.0%</td>
+          <td class="right" style="color:var(--green)">50.0%</td>
+          <td class="right">4</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Dec 2025</td>
+          <td class="right">16</td>
+          <td class="right"><span class="rating-pill good">4.06</span></td>
+          <td class="right" style="color:var(--green)">18.8%</td>
+          <td class="right" style="color:var(--green)">75.0%</td>
+          <td class="right">16</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jan 2026</td>
+          <td class="right">5</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td class="right" style="color:var(--red)">40.0%</td>
+          <td class="right" style="color:var(--green)">40.0%</td>
+          <td class="right">5</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Feb 2026</td>
+          <td class="right">7</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td class="right" style="color:var(--green)">14.3%</td>
+          <td class="right" style="color:var(--green)">71.4%</td>
+          <td class="right">7</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Mar 2026</td>
+          <td class="right">0</td>
+          <td class="right"><span class="rating-pill bad">0.00</span></td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right" style="color:var(--green)">0.0%</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <span class="section-title">Key Themes — Qualitative Analysis</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection-label">A — Top 10 Key Theme Keywords</div>
+    <p style="font-size:13px;line-height:1.7;color:var(--grey-500);font-style:italic;margin-bottom:16px;">[ AI-generated theme analysis will appear here once the Claude integration is active. ]</p>
+    <table class="data-table" style="margin-bottom:28px">
+      <thead><tr><th>#</th><th>Theme</th><th class="right">Mentions</th><th class="right">Positive</th><th class="right">Negative</th><th class="right">Avg ★</th><th>Direction</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">01</td>
+          <td>[ AI Theme 1 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+        <tr>
+          <td class="mono">02</td>
+          <td>[ AI Theme 2 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+        <tr>
+          <td class="mono">03</td>
+          <td>[ AI Theme 3 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+        <tr>
+          <td class="mono">04</td>
+          <td>[ AI Theme 4 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+        <tr>
+          <td class="mono">05</td>
+          <td>[ AI Theme 5 ]</td>
+          <td class="right">—</td>
+          <td class="right" style="color:var(--green)">—</td>
+          <td class="right" style="color:var(--red)">—</td>
+          <td class="right"><span class="rating-pill mid">—</span></td>
+          <td><span class="badge neutral">Pending</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="subsection-label">B — Top 5 Strengths</div>
+    <div class="theme-grid" style="margin-bottom:28px">
+        
+        <div class="theme-card strength">
+          <div class="theme-rank">#1 STRENGTH</div>
+          <div class="theme-name">[ AI-identified strength ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>pos. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+        <div class="theme-card strength">
+          <div class="theme-rank">#2 STRENGTH</div>
+          <div class="theme-name">[ AI-identified strength ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>pos. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+        <div class="theme-card strength">
+          <div class="theme-rank">#3 STRENGTH</div>
+          <div class="theme-name">[ AI-identified strength ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>pos. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+    </div>
+    <div class="subsection-label">C — Top 5 Weaknesses</div>
+    <div class="theme-grid" style="margin-bottom:28px">
+        
+        <div class="theme-card weakness">
+          <div class="theme-rank">#1 WEAKNESS</div>
+          <div class="theme-name">[ AI-identified weakness ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>neg. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+        <div class="theme-card weakness">
+          <div class="theme-rank">#2 WEAKNESS</div>
+          <div class="theme-name">[ AI-identified weakness ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>neg. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+        <div class="theme-card weakness">
+          <div class="theme-rank">#3 WEAKNESS</div>
+          <div class="theme-name">[ AI-identified weakness ]</div>
+          <div class="theme-stats">
+            <div class="theme-stat"><strong>—</strong>neg. mentions</div>
+            <div class="theme-stat"><strong>—</strong>avg in mentions</div>
+          </div>
+          <div class="theme-quote">[ Representative quote will appear here ]</div>
+        </div>
+    </div>
+    <div class="subsection-label">D — Full Keyword Summary</div>
+    <p style="font-size:13px;line-height:1.7;color:var(--grey-500);font-style:italic;">[ Full keyword breakdown will appear here once the AI analysis layer is active. ]</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <span class="section-title">Client Profiles — Language Distribution</span>
+  </div>
+  <div class="section-body no-pad">
+    <table class="data-table">
+      <thead><tr><th>Language</th><th class="right">Reviews with Text</th><th class="right">% of Total (250)</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td>English</td>
+          <td class="right">206</td>
+          <td class="right">82.4%</td>
+        </tr>
+        <tr>
+          <td>German</td>
+          <td class="right">15</td>
+          <td class="right">6.0%</td>
+        </tr>
+        <tr>
+          <td>Turkish</td>
+          <td class="right">3</td>
+          <td class="right">1.2%</td>
+        </tr>
+        <tr>
+          <td>Polish</td>
+          <td class="right">3</td>
+          <td class="right">1.2%</td>
+        </tr>
+        <tr>
+          <td>French</td>
+          <td class="right">2</td>
+          <td class="right">0.8%</td>
+        </tr>
+        <tr>
+          <td>No text (rating only)</td>
+          <td class="right">13</td>
+          <td class="right">5.2%</td>
+        </tr>
+        <tr>
+          <td>Other languages</td>
+          <td class="right">8</td>
+          <td class="right">3.2%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <span class="section-title">Owner Responses</span>
+  </div>
+  <div class="section-body">
+    <div class="subsection-label">A — Response Rate by Star Rating</div>
+    <table class="data-table" style="margin-bottom:28px">
+      <thead><tr><th>Star Rating</th><th class="right">Total Reviews</th><th class="right">Responded</th><th class="right">Response Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td>5 ★</td>
+          <td class="right">97</td>
+          <td class="right">17</td>
+          <td class="right" style="color:var(--red)">17.5%</td>
+        </tr>
+        <tr>
+          <td>4 ★</td>
+          <td class="right">49</td>
+          <td class="right">5</td>
+          <td class="right" style="color:var(--red)">10.2%</td>
+        </tr>
+        <tr>
+          <td>3 ★</td>
+          <td class="right">31</td>
+          <td class="right">6</td>
+          <td class="right" style="color:var(--red)">19.4%</td>
+        </tr>
+        <tr>
+          <td>2 ★</td>
+          <td class="right">27</td>
+          <td class="right">9</td>
+          <td class="right" style="color:var(--amber)">33.3%</td>
+        </tr>
+        <tr>
+          <td>1 ★</td>
+          <td class="right">46</td>
+          <td class="right">24</td>
+          <td class="right" style="color:var(--amber)">52.2%</td>
+        </tr>
+        <tr class="total-row"><td>TOTAL</td><td class="right">250</td><td class="right">61</td><td class="right">24.4%</td></tr>
+      </tbody>
+    </table>
+    <div class="subsection-label">B — Response Rate by Year</div>
+    <table class="data-table" style="margin-bottom:28px">
+      <thead><tr><th>Year</th><th class="right">Total Reviews</th><th class="right">Responded</th><th class="right">Response Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">2013</td>
+          <td class="right">2</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2015</td>
+          <td class="right">1</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2016</td>
+          <td class="right">10</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2017</td>
+          <td class="right">16</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2018</td>
+          <td class="right">30</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2019</td>
+          <td class="right">35</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2020</td>
+          <td class="right">7</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2021</td>
+          <td class="right">10</td>
+          <td class="right">3</td>
+          <td class="right" style="color:var(--amber)">30.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">2022</td>
+          <td class="right">19</td>
+          <td class="right">5</td>
+          <td class="right" style="color:var(--red)">26.3%</td>
+        </tr>
+        <tr>
+          <td class="mono">2023</td>
+          <td class="right">31</td>
+          <td class="right">11</td>
+          <td class="right" style="color:var(--amber)">35.5%</td>
+        </tr>
+        <tr>
+          <td class="mono">2024</td>
+          <td class="right">37</td>
+          <td class="right">4</td>
+          <td class="right" style="color:var(--red)">10.8%</td>
+        </tr>
+        <tr>
+          <td class="mono">2025</td>
+          <td class="right">40</td>
+          <td class="right">26</td>
+          <td class="right" style="color:var(--green)">65.0%</td>
+        </tr>
+        <tr class="highlight">
+          <td class="mono">2026</td>
+          <td class="right">12</td>
+          <td class="right">12</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="subsection-label">C — Response Rate: Last 12 Months</div>
+    <table class="data-table" style="margin-bottom:28px">
+      <thead><tr><th>Month</th><th class="right">Reviews</th><th class="right">Responded</th><th class="right">Response Rate</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">Mar 2025</td>
+          <td class="right">1</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Apr 2025</td>
+          <td class="right">7</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--red)">14.3%</td>
+        </tr>
+        <tr>
+          <td class="mono">May 2025</td>
+          <td class="right">0</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jun 2025</td>
+          <td class="right">2</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--amber)">50.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jul 2025</td>
+          <td class="right">2</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Aug 2025</td>
+          <td class="right">3</td>
+          <td class="right">1</td>
+          <td class="right" style="color:var(--amber)">33.3%</td>
+        </tr>
+        <tr>
+          <td class="mono">Sep 2025</td>
+          <td class="right">0</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Oct 2025</td>
+          <td class="right">2</td>
+          <td class="right">2</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Nov 2025</td>
+          <td class="right">4</td>
+          <td class="right">4</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Dec 2025</td>
+          <td class="right">16</td>
+          <td class="right">16</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Jan 2026</td>
+          <td class="right">5</td>
+          <td class="right">5</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Feb 2026</td>
+          <td class="right">7</td>
+          <td class="right">7</td>
+          <td class="right" style="color:var(--green)">100.0%</td>
+        </tr>
+        <tr>
+          <td class="mono">Mar 2026</td>
+          <td class="right">0</td>
+          <td class="right">0</td>
+          <td class="right" style="color:var(--red)">0.0%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="subsection-label">D — Draft Owner Responses (Examples)</div>
+    
+        <div class="draft-card">
+          <div class="draft-original">
+            <div class="draft-meta">1★ · Dec 2024 · English · Unanswered</div>
+            <div class="draft-text">We had to wait 1.5 hours for the food. The water was really rude, he just put the food in the middle of the table. I asked for a lemonade and got a water that had lemon in it and 0 sugar, and it had s…</div>
+          </div>
+          <div class="draft-response">
+            <div class="draft-response-label">Draft Response — English</div>
+            <div class="draft-response-text">[ AI-generated response in English will appear here once the Claude integration is active. ]</div>
+          </div>
+        </div>
+        <div class="draft-card">
+          <div class="draft-original">
+            <div class="draft-meta">1★ · Sep 2024 · English · Unanswered</div>
+            <div class="draft-text">We are unable to place our food order because of the staff&#x27;s rudeness and poor communication. They are deliberately ignoring us since we asked to change our seats. If you&#x27;re looking to see people from…</div>
+          </div>
+          <div class="draft-response">
+            <div class="draft-response-label">Draft Response — English</div>
+            <div class="draft-response-text">[ AI-generated response in English will appear here once the Claude integration is active. ]</div>
+          </div>
+        </div>
+        <div class="draft-card">
+          <div class="draft-original">
+            <div class="draft-meta">5★ · Aug 2025 · German · Unanswered</div>
+            <div class="draft-text">Alles war bestens und das Preis-Leistungsverhältnis ist super. Es gibt nichts besonders aufregendes aber es schmeckt alles sehr gut.</div>
+          </div>
+          <div class="draft-response">
+            <div class="draft-response-label">Draft Response — German</div>
+            <div class="draft-response-text">[ AI-generated response in German will appear here once the Claude integration is active. ]</div>
+          </div>
+        </div>
+    <div class="draft-cta">
+      <span style="font-size:20px">✉</span>
+      <div><strong>We can populate this for all your unanswered reviews.</strong> TRIC generates ready-to-copy responses for every open review — in the language of the original reviewer, prioritised by star rating.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <span class="section-title">Appendix — All Reviews (250 records)</span>
+  </div>
+  <div class="section-body no-pad">
+    <table class="data-table">
+      <thead><tr><th>Date</th><th class="right">Rating</th><th>Reviewer</th><th>Review Text (excerpt)</th><th class="right">Answered</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td class="mono">01 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>1503granrey</td>
+          <td style="max-width:400px;word-break:break-word">Great restaurant hidden away on a side street close to the Opera House. You’ll find a very spacious and clean restaurant awaiting you, authentic Austrian cuisine.
+
+We enjoyed 2 excellent entrees, one with beef sauerkraut and a  bread dumpling. The other was a chicken breast smothered in a delicious </td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>S. D.</td>
+          <td style="max-width:400px;word-break:break-word">We went there on a Sunday, still got a table though quite full.
+I didn&#x27;t get good reviews for this chain restaurant in Vienna but I was surprised on their service and good food (goulash and grilled chicken).
+Well grilled chicken is not a deluxe dish but the meat is juicy.
+Though the price is no</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Ivan Pendjerkov</td>
+          <td style="max-width:400px;word-break:break-word">The food is great, everything we ordered came out perfectly and the portion sizes were up to expectations
+The staff, however was very cold and unfriendly, it took a lot of time to order, and we only saw our waiter for a total of three times in the entire span of our stay. We were one of four tables </td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Nov 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Dougie G</td>
+          <td style="max-width:400px;word-break:break-word">I am seeing bad reviews, but luckily it is after we are there.  Half chicken, schnitzel chicken and veal, and goulash.  The food was good and the inside was clean.  Service was good and quick.  I have no issues with coming back.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Jun 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Michael Bruck</td>
+          <td style="max-width:400px;word-break:break-word">All the best hits of Viennese cuisine are executed to perfection. Service is efficient and friendly. Location is on a quaint side street off the main shopping road in the first district, a stones throw from the opera. Perfect place for a lunch or casual dinner.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Abbey Bominabel</td>
+          <td style="max-width:400px;word-break:break-word">We were really disappointed. First of all, the waiter was really impolite and did not show any kind of interest towards us. Secondly, we waited long until we could order our viennese schnitzel with parsley potatoes. Thirdly, the food was not good. The parley potatoes were not covered in parsley, it </td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Jul 2022</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Tapani</td>
+          <td style="max-width:400px;word-break:break-word">Very unfriendly service by the lady in the shift. Few customers inside and yet she overlooked us.
+
+The schnitzel was below average, ribs were better. However, bring your own ketchup whilst they charge 0.90 euros for a small bag which you get plenty for free in any other restaurant. Even those she th</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Nelutu Rosu</td>
+          <td style="max-width:400px;word-break:break-word">Good food, friendly stuff, kids friendly.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Vienna community</td>
+          <td style="max-width:400px;word-break:break-word">Absolutely Child- and Family Friendly! It‘s great to find a place like this so central in Vienna to try through the whole Range of traditional Austrian Cuisine with the Family: Altwiener Suppentopf, Gulaschsuppe, Schnitzel, Backhendl salad, Original Wiener Backhendl and Tafelspitz!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Jan 2024</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Sebastian “Signs” Gonzalez</td>
+          <td style="max-width:400px;word-break:break-word">It was our first meal in Vienna. The schnitzel was not very good, as if it had been reheated instead of freshly made. The accompaniment (baked potato) did feel fresh. We were charged €5 for some sachets of ketchup, this felt slightly like a rip-off.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Apr 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>audy dory</td>
+          <td style="max-width:400px;word-break:break-word">Very well cooked roast chicken and vegetables. Even the kaiserchmarren was nice too.
+Not sweet.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Z. CON GLANTZ</td>
+          <td style="max-width:400px;word-break:break-word">Good food.
+Everything is fresh and delicious.
+Kind and friendly service.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Oct 2023</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>LucijaApple</td>
+          <td style="max-width:400px;word-break:break-word">We came for dinner, the restaurant was full, but not completely.  The waitress was very friendly, but....We waited an hour for our food.  It is truly too long.  The food was ok, but nothing more.  Confectionery.  The atmosphere is pleasant and warm, but the speed of service and food need to be worke</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 May 2018</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Cynthia Lee</td>
+          <td style="max-width:400px;word-break:break-word">Food &amp; service OK but generally below average, price outrageous for what we got.
+
+Don&#x27;t bother waiting to be seated. It&#x27;s quicker and easier to just sit down. You must put in effort to flag down waiters to put in your order and when you want to pay. Waiter was friendly enough when you </td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Jan 2019</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Wan-man WONG</td>
+          <td style="max-width:400px;word-break:break-word">Foods are acceptable at this price and you cannot expect more. Not difficult to get a table. The roasted duck is really good that you can have a try.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Oct 2024</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Maria C</td>
+          <td style="max-width:400px;word-break:break-word">Food was fine, price expensive because of location but was surprised by attitude of wait staff aggressively reminding us about the fact there is no tip included in the final bill. First time it happened to us in Austria.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Jul 2023</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>harrison kurunathan</td>
+          <td style="max-width:400px;word-break:break-word">Regarding the food, me and my friend had shnitzel and a whole fried chicken. The food was really commendable. The chicken was fried well and served beautifully. The only thing I missed was some seasoning and garnish to go along with it.
+
+The staff were extremely friendly and kind. The people had a v</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Apr 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Viktorija Štumpf</td>
+          <td style="max-width:400px;word-break:break-word">Very bad experience! Semi-alive food. The chicken is not completely shredded. Uncooked potatoes. Uncooked steaks.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Jay Kim</td>
+          <td style="max-width:400px;word-break:break-word">We believe that workers here do not communicate each other. We waited for the food more than an hour. We called them a lot, but they only said Yes and did not come to give us a check. Even the manager did not seem responsible.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Pijus Ringys</td>
+          <td style="max-width:400px;word-break:break-word">Wonderful atmosphere and service. Helpful and nice waiters. Definitely recommend!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Nov 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Marie Novotna</td>
+          <td style="max-width:400px;word-break:break-word">Finally I have had proper Wienerschnitzel although I cook it&#x27;s czech variety for decades. I still must learn a lot because the food in this popular restaurant with pleasant interier, skillful service and interesting price range (for centre of Vienna) was far beyond my cooking skills. Also other</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Jan 2023</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Flavia Tirabassi</td>
+          <td style="max-width:400px;word-break:break-word">Nice restaurant that serves good food, mainly schnitzel and potatoes. Service was efficient and friendly. Prices are okay, portions are decent. Would recommend to others!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Mar 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Ljubica Musulanova Ristevska</td>
+          <td style="max-width:400px;word-break:break-word">We had a very good meal. We had topical Vienna recepies ant it was very noce and very good taste. Only remark is that it was too quiet and there was no music.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Nov 2021</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Catheline Boyere</td>
+          <td style="max-width:400px;word-break:break-word">Excellent with many Austrian specialities. The schnitzel was excellent so was the goulash. The appel strudel was really tasty too. But it is a bit expensive (more than 70 € for 3 mains and desserts)</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Nov 2021</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Dewang Panchal</td>
+          <td style="max-width:400px;word-break:break-word">the service is very very slow. i think they are running short of staff. hardly 1 girl who was taking order, serving and cleaning all altogether by herself. Food is OK type, nothing great. there is very less salt in almost all the dishes. there are many restaurants who serves nice food on the same la</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Feb 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Avi Tzafrir</td>
+          <td style="max-width:400px;word-break:break-word">Beef schnitzel with rice salad and Strudel as dessert ❤️😊
+It was very tasty and the service was very! Good</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Nov 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>RubyGloria</td>
+          <td style="max-width:400px;word-break:break-word">I tried cordon bleu with turkey and the chicken. Everything was so delicious. Also the waiter was so friendly.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Oct 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Kale Mkervalishvili</td>
+          <td style="max-width:400px;word-break:break-word">Everything was very good, But Goulash was perfect... ♥️</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Karolina Selesi</td>
+          <td style="max-width:400px;word-break:break-word">Tasty food, portions are medium sized, quiet place in the city center.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Jan 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Nika</td>
+          <td style="max-width:400px;word-break:break-word">Welcoming staff, food is tasty and homely with quick service. The restaurant is modern and bright, it has no views to the street but it still feels spacious (photo: chicken schnitzel and pork with dumpling and cabbage).</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Apr 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Ahmet Ertekin</td>
+          <td style="max-width:400px;word-break:break-word">Today we had lovely lunch, outside terrace of Annagasse brunch.A delicious chicken schnitzel  and a very moist rotisserie chicken with choice of 2 side orders.Both extemely delicious.Despite the busy lunch service our food served very promptly by FAUSI who carried out his duties so proffesionally.He</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Dec 2017</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>steve cheng</td>
+          <td style="max-width:400px;word-break:break-word">Tasty casual restaurant with friendly service.  Recommend entrees with the mushroom sauce</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Jul 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Ognjen</td>
+          <td style="max-width:400px;word-break:break-word">Cordon Bleu schnitzel was okay-ish, while &quot;gulasch&quot; was absolutely delicious. Both portions were really large as well as the portion of mixed salad. Prices of dishes go from 16 Euros to 25 Euros, in general. The restaurant is very spacious, although of somehow modest interior. It wasn&#x27</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Mr Mookie</td>
+          <td style="max-width:400px;word-break:break-word">Wonderful authentic food in the busy shopping district. Great staff.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Peter Kiss</td>
+          <td style="max-width:400px;word-break:break-word">We come here every time we are in Austria.Service and food always good.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Dec 2023</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Aleksandar Jevremovic</td>
+          <td style="max-width:400px;word-break:break-word">The food was OK, but nothing special. The atmosphere is good, our order arrived quickly, and the waiter was pleasant.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Jul 2024</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Komal Patel</td>
+          <td style="max-width:400px;word-break:break-word">Food was not fresh , staff was rude , they will force you for tip and check your bill twice and they charged us for what we had not ordered!!! We mad police complaint even they don’t bother about Police.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Jan 2020</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>S Bae</td>
+          <td style="max-width:400px;word-break:break-word">It was very authentic and affordable. I would definitely go back. It seems like there are some other branches around the city. If you want to. Try Wienner dish that is quick and affordable you should try this place</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Apr 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Sun Hee Moon Teza</td>
+          <td style="max-width:400px;word-break:break-word">Wienerwald is a big chain of restaurants that serve typical Austrian dishes. The one I was at is very central, near Stephanplatz. The food is really good, service is professional and very kind. Price is honest. It is a good choice when you are downtown and want genuine Austrian food, without waiting</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Nov 2018</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Vladlena Martsynkevych</td>
+          <td style="max-width:400px;word-break:break-word">The place is affordable restaurant type. Food was good, big portions.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Nov 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Marcel Chee</td>
+          <td style="max-width:400px;word-break:break-word">Great introduction to Austrian cuisine for tourists. Spicy chicken was delicious!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Feb 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Noa Vihar</td>
+          <td style="max-width:400px;word-break:break-word">Chicken is the only thing we get no side dish
+Chicken is litel undercooked
+And the glass on the jug for whater is staind and dirty</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Feb 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Kosta</td>
+          <td style="max-width:400px;word-break:break-word">The worse ever , bad food and honestly high price for nothing and even you don&#x27;t  get what you ordered although it&#x27;s empty , it&#x27;s not wienerWald that I used to eat , this branch should close</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Nov 2022</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Becky J.D.</td>
+          <td style="max-width:400px;word-break:break-word">I enjoyed the stuffed schnitzel! The restaurant was clean and the service was good!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Apr 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Gábor Tóth</td>
+          <td style="max-width:400px;word-break:break-word">Very authentic place, which we loved particularily because they were able to serve the food so that it was free from any allergens. They totally understood the issue, were very helpful, and served delicious food according to the extra needs. We&#x27;re very thankful.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Mar 2023</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Han</td>
+          <td style="max-width:400px;word-break:break-word">Nothing is the same like 5 years ago!!!
+The half size chicken was smelling. French fries were washed in fat but never cooked well, there were very fatty and row… really ugly, sorry to say so. I respect food but I criticise the preparation of the food only!
+
+For me, from now on, Wienerwald is the nam</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Dec 2024</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Ádám Balogh</td>
+          <td style="max-width:400px;word-break:break-word">We had to wait 1.5 hours for the food. The water was really rude, he just put the food in the middle of the table. I asked for a lemonade and got a water that had lemon in it and 0 sugar, and it had so many lemon Juice that it was undrinkable. In the food the side fish was 4 piece of potato, and the</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Apr 2018</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Giovanni Spadaro</td>
+          <td style="max-width:400px;word-break:break-word">Not bad as place to have a lunch or a diner, but the dessert is freeze and in my opinion also all the food is freeze</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Pante limon</td>
+          <td style="max-width:400px;word-break:break-word">The portion of the Schnitzel had a very large size. Schnitzel and fried potatoes and a salad with carrots, green salad, white cabbage and ... again potatoes...</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Mar 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Maria Chittock</td>
+          <td style="max-width:400px;word-break:break-word">Waiter was friendly, service was quick, food good, property was clean. Would recommend and return.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Jan 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Heidi Conway</td>
+          <td style="max-width:400px;word-break:break-word">Very nice service and delicious food.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">30 May 2024</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Dora Pancic</td>
+          <td style="max-width:400px;word-break:break-word">Right as I entered the restaurant, i was greeted by a rude worker who had no respect for our group. When they served food I immediately found a strand of hair in it. Food was expensive, not seasoned and it did not taste super fresh. Toilettes were dirty and had no soap or paper, as well as glasses w</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Jan 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Hanc Iulia</td>
+          <td style="max-width:400px;word-break:break-word">Great food.Good serving.The portions were big enough.Moderate prices.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 May 2017</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Jason Shi</td>
+          <td style="max-width:400px;word-break:break-word">Opens on Sunday. Prok rib is okay. The grilled potato is excellent.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Dec 2024</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Jahn Teller</td>
+          <td style="max-width:400px;word-break:break-word">We entered the place  because it was fricking cold outside and it happened  to be  just along the street by the tourist area.  The venue inside was nothing special, rather indictive of the chain character  of the restaurant.  The waiters were ok and till here  everything was  fine.  Later on, I felt</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Jan 2023</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Ivan Stanojevic</td>
+          <td style="max-width:400px;word-break:break-word">Good location and service, friendly and polite stuff, fresh, but just acceptable taste of the food.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Jul 2024</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Jagrut Patel</td>
+          <td style="max-width:400px;word-break:break-word">Perfect word for this restaurant is Fraud…. First time we are trying in this chain so we selected food by showing waiter in the menu with the finger pointing. While we received the bill and we realised that they charged for something else with higher prices item , than they asked for tip and they in</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Dec 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Crina Cristea</td>
+          <td style="max-width:400px;word-break:break-word">Very bad experience. We entered the restaurant to eat something, nobody welcomed us, nobody said anything, the stuff was overwhelmed. When i asked a waiter if they have a table for 3 (there were tables, but they had to be cleaned up) he told me that it will take 5 min. Of course he forgot about us. </td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Jan 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>aqws1000</td>
+          <td style="max-width:400px;word-break:break-word">We have been 2-3 times here. It&#x27;s not that bad as the average point shows. The food is nice, the waitors are kind.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Apr 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Elia black</td>
+          <td style="max-width:400px;word-break:break-word">The place is nice, but the food and service are terrible. The food was bland and even the sacher was badly made, while due to a mistake our reservation was postponed by half an hour and we were also kicked out in a bad way. Furthermore, they understand absolutely nothing of any language, and even in</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Matija Dumnić</td>
+          <td style="max-width:400px;word-break:break-word">Friendly staff and not the best food</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Jan 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Tomaso Mainardi</td>
+          <td style="max-width:400px;word-break:break-word">A good traditional restaurant in the city center, friendly waiters and quick service.
+With the traditional schnitzel I recommend a deviation from the rule, the potato salad!
+You can eat french fries at home or from a McDonald&#x27;s 😉
+
+Just one thing I noticed, the schnitzel wasn&#x27;t big enough l</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Aug 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>reyhane maleki</td>
+          <td style="max-width:400px;word-break:break-word">The server was unfriendly and impolite. Arrived my food cold and I asked to change it! After 20 minutes I asked for my food and the waiter shouted at me it is impossible the dish was not hot and fresh! For getting the check we were waiting for around 15 minutes. Not Delicious food and a very uncomfo</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Apr 2017</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Boris Mihoci</td>
+          <td style="max-width:400px;word-break:break-word">Reasonable price of food for the proximity of the city center. The waiters are not smiling, but they are kind.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Jul 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Alves Maia</td>
+          <td style="max-width:400px;word-break:break-word">The food is below average, but I wasn’t expecting much for this kind of restaurant in a tourist place. The service is slow, inattentive, and discourteous . Also, they charge EU0,90 for a pack of Ketchup, EU0,90 for a pack of maionese, and EU0,90 for a glass of tap water. None of those items were in </td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Oct 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Nicolas Gindrier</td>
+          <td style="max-width:400px;word-break:break-word">What a bad experience. Waiters are not pleasant, the inside of the restaurant is weird. The food is not interesting.
+You have to pay 90 cents by ketchup sachet (but nobody says you), and more than 1 euro per glass of tap water (even if you ordered other drinks).
+If you pay per card, tips are mandato</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jan 2024</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Adrionika Centre</td>
+          <td style="max-width:400px;word-break:break-word">Super ribs, large portions, fast. Everything was eaten with pleasure</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Dec 2024</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Michal Ružička</td>
+          <td style="max-width:400px;word-break:break-word">Restaurant in quality of very average fastfood. It is edible if you don’t expect taste. Potatoes with onion had some taste.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Jan 2024</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Larry Cardona</td>
+          <td style="max-width:400px;word-break:break-word">Food is alright if you’re really hungry, if you want to get the best experience I would reserve with a better restaurant like Lugeck. Service is okay, not that many servers so you’ll be waiting a while. Took 40 mins so I can pay for the bill.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Nov 2016</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Justin Janecka</td>
+          <td style="max-width:400px;word-break:break-word">Great food; the service was a little slow but the food was excellent. The ribs here are very similar to what would be considered back home as a great slab of Texas-style barbecued ribs with the only exception being that the ribs we ordered here are roasted instead of smoked. But the flavor profile i</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Oct 2018</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Idan U</td>
+          <td style="max-width:400px;word-break:break-word">Were on a connection flight through Vienna. Came specially here to taste a Wiener schnitzel. Place was not very welcoming. Price of the dish was not cheap and so I expected a good schnitzel. Unfortunately I did not like it at all. Really just could not eat it. I kindly asked to have a chicken schnit</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Oct 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>paul Bouton</td>
+          <td style="max-width:400px;word-break:break-word">Very bad restaurant, a real tourist trap.
+Food is crazy expensive (they will charge you .90€ for the ketchup and 2€ for a glass of water), not so good and the waiter included 5€ of tips without asking.... You should not go there !</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Dec 2019</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Adrian Jankojć</td>
+          <td style="max-width:400px;word-break:break-word">I would give 0 if I could and it’s mostly because of service. They want to put as many guests as they can and make you uncomfortable with pretty much everything, looking at you impatiently when you’re finishing your drinks. They bring you extras that are paid without asking. The same with dishes you</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Nov 2022</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>İsmail SUNAR</td>
+          <td style="max-width:400px;word-break:break-word">We tried the Original Wienerschnitzel here served with some side dishes of choice. The food, the service, the atmosphere, everything was reasonable. They offer some wines and other drinks, it was a decent experience, would visit again.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Jul 2024</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>A Amrou</td>
+          <td style="max-width:400px;word-break:break-word">Veal Schnitzel was good!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Aug 2022</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Izabela Carnaru</td>
+          <td style="max-width:400px;word-break:break-word">Good food! The chicken was delicious! I will recomand!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Dec 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Panagiota Dimitriadou</td>
+          <td style="max-width:400px;word-break:break-word">Very tasty chicken schnitzel and gordon bleu for those of us who don&#x27;t like veal schnitzel.  The potato salad was great too. The only thing we didn&#x27;t like were the fries, they were precooked and we would prefer fresh fries for our meal. But in general we were extra satisfied!! Definitely r</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Nov 2018</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Cici Chen</td>
+          <td style="max-width:400px;word-break:break-word">Slow service, obviously frozen pork schnitzel, dry fries and the parsley potatoes were bland, we could taste no parsley. We asked one waiter to pay and he referred us to the other waiter working even though he wasn&#x27;t doing anything. Had to wait over 10 minutes to pay a simple bill in a mostly q</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Apr 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Israel Lavie</td>
+          <td style="max-width:400px;word-break:break-word">Great food, large dishes, good service but a little bit slow.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Sep 2024</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Iana Grysenko</td>
+          <td style="max-width:400px;word-break:break-word">We are unable to place our food order because of the staff&#x27;s rudeness and poor communication. They are deliberately ignoring us since we asked to change our seats. If you&#x27;re looking to see people from the forest who are currently working there, in this case I would suggest going there</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Mar 2019</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Tagg</td>
+          <td style="max-width:400px;word-break:break-word">Soup tasted like packet soup. Schnitzel was thick, chewy and small, which at 16€, you can have much better elsewhere. Fiancee&#x27;s baked potato wasn&#x27;t fully cooked.
+
+We spent two weeks travelling Italy, Slovenia, Germany and Austria and pound for pound was the worse meal we had. Supermarket/f</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Dec 2022</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Gordon Freeman</td>
+          <td style="max-width:400px;word-break:break-word">We always in eat in Wienerwald when in Wien, and enjoy great food with reasonable prices. This restaurant chain will fill you up, as the portions are rich and tasty. There is almost always a free table, and the staff service is fast and pleasant. Go for the Wiener schintzel or their famous beef-goul</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Jun 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Suzanne Kerr</td>
+          <td style="max-width:400px;word-break:break-word">Not sure exact location but my food was fine. Pork was huge, veges delish.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Mar 2018</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Tt Fox</td>
+          <td style="max-width:400px;word-break:break-word">We arrived after lunch, still it was busy. It was crowed, not well organised and only 2/3 staff serving. We had to wait a long time to order, but the food was good. As I used to remember the food we ordered from I was a child. The staff was running all the time. They tried to do their best. For the </td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Jul 2024</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Bruna Lima</td>
+          <td style="max-width:400px;word-break:break-word">Reasonable, common price and common food, but the bad point was the waiter showed us the bill without the 10% but before we pay he put the 10% without asking us.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Nov 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Julia Isabelle Gerber</td>
+          <td style="max-width:400px;word-break:break-word">They forgot us. 60 minutes waiting for nothing. We are super angry.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Feb 2019</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Joe Mahaney</td>
+          <td style="max-width:400px;word-break:break-word">Food was ok.  It&#x27;s like Denny&#x27;s in the US. This was the first thing we had in Vienna that was very salty.  Most of the menu items seemed deep like they were deep fried.  The food was good but not the best here.  It&#x27;s like comfort food though.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Dec 2018</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Adrian Popirlan</td>
+          <td style="max-width:400px;word-break:break-word">Food was ok and prices are decent. It was the only place that had available tables on a Sunday night. Service was good (probably the only place in Vienna where the waiter talks nice and is friendly). Even if it&#x27;s not a very refined restaurant, it deserves a good review for the excellent service</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">31 May 2019</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Will Xie</td>
+          <td style="max-width:400px;word-break:break-word">Wienerwald used to be a good place for Austrian food but now it is a pure tourist trap! Everything is expensive and it doesn&#x27;t seem that the dishes are freshly cooked. The food we got were cold so we had to send it back. Of course, they have put it into the microwave, including the fries. The s</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Jul 2015</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Soyoung Song</td>
+          <td style="max-width:400px;word-break:break-word">Prices not too bad.  Taste was ok
+Our waitress was a bit impatient and more like a school head master during an exam.  Another waitress who helped briefly was quite kind/empathetic.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Apr 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Tjaša V</td>
+          <td style="max-width:400px;word-break:break-word">Since we waited a long time and no waiter served us, even though they were walking past us, we got up to leave the restaurant. Only then did the waiter come to us... Since we saw how long others were waiting for their food, we just drank juice and left... I don&#x27;t recommend it at all!!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Nov 2022</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Kseniia Meshcheriakova</td>
+          <td style="max-width:400px;word-break:break-word">Food is very average. Waiter estimated his own tips and included it to the amount on the machine to pay. Except that service was good.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Feb 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Gisela González Martínez</td>
+          <td style="max-width:400px;word-break:break-word">The guy who served us was super nice, but the girl was not, she rudely took our cards away from us.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Dec 2016</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Michael Anthony Poulter</td>
+          <td style="max-width:400px;word-break:break-word">Stayed in Vienna for 10 days last Summer. We ate at this restaurant on 3 occasions. We found the food to be very good and very reasonably priced. Going to Vienna again next year and will certainly be eating here again.
+I would highly recommend...</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Aug 2024</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Guillem Corbi</td>
+          <td style="max-width:400px;word-break:break-word">The food was not so good for that price, but it was OK. However, the masterchef was so rude, i would not recommend a visit here just for his behavior.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Oct 2018</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Filip Novodvorský Gaudenzi</td>
+          <td style="max-width:400px;word-break:break-word">I expected more, the meat was ok, but I thought I was better since I went, as I heard, in the best restaurant for eating the traditional Austrian food, the Wienerschnitzel!
+For for the money I spent for that it doesn&#x27;t worth it!
+It&#x27;s a pity I expected much more...</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Nov 2022</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Filip Krizanac</td>
+          <td style="max-width:400px;word-break:break-word">Unfortunately very overpriced for the quality. We exclusively had warmed up convince food and ended up with a 60€ bill for two people. The beer was decent.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Jan 2016</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Tudor O</td>
+          <td style="max-width:400px;word-break:break-word">Food is good, the 1/2 of chicken with garlic butter was delicious and tender. Staff is friendly.
+
+Prices are good, the 1/2 chicken with fries ( quite large portion ) was 10,90.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Apr 2019</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>annalisa donadei</td>
+          <td style="max-width:400px;word-break:break-word">Bad restaurant for quality of the food and welcoming. Inqualificabile meat and the worst desserts I have ever eaten served just after the main course to let us staying there the least time possible.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Dec 2019</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Chris Agius</td>
+          <td style="max-width:400px;word-break:break-word">Food was ok but service was sooo sooo bad! First of all the waiter doesn’t even ask what you want, he brings you whatever sides and type of meat he wants. Same for drinks. If you ask for something that takes time to do he tries to make you not take it. And to top it all off he asks you for tips hims</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Jan 2018</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>James Sunna</td>
+          <td style="max-width:400px;word-break:break-word">Slow service, and they forgot to order the food, waited a long time for nothing, they are understaffed. Menu and food looks good, on other people&#x27;s plates. It&#x27;s a clean and nice place, shame on the service</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Dec 2022</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Huseyin Sahlan</td>
+          <td style="max-width:400px;word-break:break-word">I myself did not like modern furniture for this Wienerwald chicken restaurant. Previous rustic furniture suited this city&#x27;s atmosphere.
+
+The service was late and was not satisfactory.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Jan 2020</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>HB C</td>
+          <td style="max-width:400px;word-break:break-word">Reasonable price for quality food.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Oct 2021</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Michel Schut</td>
+          <td style="max-width:400px;word-break:break-word">Open until 23.00 appaeently means you can&#x27;t come in at 21:30 anymore because they were already closing down. I understand that most people don&#x27;t eat after 21.00, but why advertise that you are open until 23.00?</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Jan 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>David Wilkinson</td>
+          <td style="max-width:400px;word-break:break-word">Great little restaurant the food was well cooked and tasty for the price it was excellent the waiter was great and his wine recommendation was top class and we would definitely visit again</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">31 May 2013</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Atul Jethmalani</td>
+          <td style="max-width:400px;word-break:break-word">Very good .. had a buffet salad which was nice. also had their family plate at 35€  which was too much in quantity.. we could not finish it.. good experience..</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Mar 2016</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Murat Salkaya</td>
+          <td style="max-width:400px;word-break:break-word">While I was in a hurry for a concert in Kursalon, I visited this restaurant for dinner on 02.12.2015. I admired its modern and plain decoration &amp; ambiance, helpful staff, delicious food &amp; wine and fast service. Its closeness to major transportation hubs ( i.e., Opernring, Stephansplatz under</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Mar 2017</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Benedikt</td>
+          <td style="max-width:400px;word-break:break-word">Average Austrian kitchen. Good if your just walking around the 1st district and just want decently priced Austrian food with no frills. The kitchen tends to be slow, even when there are few customers present. The baked mushrooms are a good vegetarian option.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Aug 2017</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Neha Sharma</td>
+          <td style="max-width:400px;word-break:break-word">Great place for authentic Viennese dishes...their main focus is chicken dishes..here wine is cheaper than coffee!! Not thronged by tourists as many would not know the place...hence not very expensive</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Oct 2019</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Benjamin Shee</td>
+          <td style="max-width:400px;word-break:break-word">Food ain&#x27;t bad, but it ain&#x27;t particularly good either.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Dec 2017</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Adam Beres</td>
+          <td style="max-width:400px;word-break:break-word">The chicken soup is mediocre and the wiener schnitzel along with the service is okay at best, especially with these prices. Came here only because every other decent place were full.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Mar 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Zorica Marković</td>
+          <td style="max-width:400px;word-break:break-word">Food was terrible! :( The worst restaurat we ever been.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Sep 2017</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Vincent Garcia</td>
+          <td style="max-width:400px;word-break:break-word">Good place for a quick bite, however expensive and can find more authenticate meals just a short walk out of the CBD. Schnitzel is mass produced and found in most supermarkets</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Dec 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Abdulla Al Mazrouei</td>
+          <td style="max-width:400px;word-break:break-word">The food was delicious service was the best service I had in Vienna.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Jan 2019</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>David M. Graham</td>
+          <td style="max-width:400px;word-break:break-word">Predictable eating place.  Service is sometimes good, sometimes not, depending how busy they are.  Food is usually decent and reasonably priced.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Feb 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Zurab Gojiashvili</td>
+          <td style="max-width:400px;word-break:break-word">Very interesting atmosphere, cozy place, welcoming staff, and delicious food. Thank you</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Dec 2019</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Eirini Gord</td>
+          <td style="max-width:400px;word-break:break-word">The most dirty toilets of all restaurants in Vienna. I didn&#x27;t like the food at all. They offered us the schnitzel without potatoes (only to us). They didn&#x27;t clean up the table from the previous customers, too.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Jul 2021</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Milan Šurkala</td>
+          <td style="max-width:400px;word-break:break-word">Very satisfied. The staff was quick, very friendly, the food was great and relatively cheap for the position of the restaurant in the centre of Vienna.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jun 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Bogdan Mereuta</td>
+          <td style="max-width:400px;word-break:break-word">Very good food with idk how it has 3,8 stars very good restaurant.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Sep 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Gargi Biswas</td>
+          <td style="max-width:400px;word-break:break-word">Very bad service. The lady overlooks some of the customers. It&#x27;s been an hour and still didn&#x27;t get out food. Not worth it.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Feb 2017</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Graham Miao</td>
+          <td style="max-width:400px;word-break:break-word">Nice food. Clean place.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Dec 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Colin McNair</td>
+          <td style="max-width:400px;word-break:break-word">Surprised to find it was a huge brightly lit modern restaurant tucked down the lane, service was fast and food tasty</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Sep 2016</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Kris T</td>
+          <td style="max-width:400px;word-break:break-word">The food was good, staff polite.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">05 Sep 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Julia Morozova</td>
+          <td style="max-width:400px;word-break:break-word">Quality+ very good taste!
+Try to save yourself space for dessert 😉. Delicious!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Dec 2024</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Julie Z</td>
+          <td style="max-width:400px;word-break:break-word">Never got a chance to eat. Never had anyone take our order.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Apr 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Juri Ich</td>
+          <td style="max-width:400px;word-break:break-word">The original Viennese schnitzel was very, very tasty.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Feb 2018</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Yves Boillot</td>
+          <td style="max-width:400px;word-break:break-word">Didn&#x27;t appreciate the service that overbilled us and the food of average quality.  however the place is clean and pleasant.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Oct 2019</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Gordon Daniels</td>
+          <td style="max-width:400px;word-break:break-word">Good Goulash and Schnitzel. However you need to order the Erdapfel Salat separately.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Dec 2018</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Jan Kl</td>
+          <td style="max-width:400px;word-break:break-word">Friendly personell but the quality of the food was awful. Interior quite ok. All in all too expensive vs. Food quality and taste.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Dec 2022</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Mihai-Gabriel Borlea</td>
+          <td style="max-width:400px;word-break:break-word">Very unfriendly service, it got to the place that the waitress was very rude. Also, the food us mediocre and overpriced.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Mar 2024</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>jovan pare</td>
+          <td style="max-width:400px;word-break:break-word">hospital food
+house specialty potatoes cooked in destilled water so they become as tasteless as possible</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Jun 2024</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Carlos Villamil</td>
+          <td style="max-width:400px;word-break:break-word">Terrible service, the waitress had a terrible attitude and the chicken was way too salty</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Jun 2018</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>NN</td>
+          <td style="max-width:400px;word-break:break-word">Food is just okay, place is clean and spacious. If you are really hungry at that area this is okay to go in.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Oct 2018</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Sebastian Špeta</td>
+          <td style="max-width:400px;word-break:break-word">Food ok, below average, should have been cheaper for this quality. Staff ignores basically everyone, unbelievable.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Feb 2024</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Sara Delgado</td>
+          <td style="max-width:400px;word-break:break-word">Nice place to have a good meal in Viena! Recommendable</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Aug 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Steve Bast</td>
+          <td style="max-width:400px;word-break:break-word">Our server was great and the food was too. Would recommend Wienerwald.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Aug 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>cospro</td>
+          <td style="max-width:400px;word-break:break-word">Love it. Nice place, very friendly staff, very clean. The food was amazing.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Jan 2024</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Steve Wilkins</td>
+          <td style="max-width:400px;word-break:break-word">More motorway service station than city restaurant. Got our order wrong. Food was average at best.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Mar 2022</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Roderick MacKenzie</td>
+          <td style="max-width:400px;word-break:break-word">Clean and bright. Good table service. Prices reasonable, not expensive.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Apr 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Macdonald Piano</td>
+          <td style="max-width:400px;word-break:break-word">Horrible service. Super slow and very rude service. Food was ok, but absolutely horrible rude staff.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">23 Sep 2016</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Jose Luis BufferOverCat</td>
+          <td style="max-width:400px;word-break:break-word">Food was good, altough goulash was improvable. Staff very friendly and price cheap.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Dec 2017</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Marija Pajovic</td>
+          <td style="max-width:400px;word-break:break-word">Taste food, lot of space to sit, good draft beer, portions big enough. Warm reception.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Mar 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Riccardo Tozzato</td>
+          <td style="max-width:400px;word-break:break-word">we saw the staff smoking in the kitchen on top of the food as well as a pile of dirty dishes in front of everyone and sauces on the wall</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Aug 2016</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Paula Z</td>
+          <td style="max-width:400px;word-break:break-word">The food is always good, the service is friendly the food comes fast it&#x27;s comfortable</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Jun 2022</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>123 G</td>
+          <td style="max-width:400px;word-break:break-word">Really rude floor manager, so cold and unprofessional!! Food was good but she ruined it</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Mar 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Patrick Mannion</td>
+          <td style="max-width:400px;word-break:break-word">I had a wonderful meal with my work colleague, and I would return again.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Apr 2019</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Tamás Szkok</td>
+          <td style="max-width:400px;word-break:break-word">Decent fast-food, albeit there are better places for schnitzel.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Apr 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Георги Бойков</td>
+          <td style="max-width:400px;word-break:break-word">Nice restaurant</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Jul 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Daniel Brzeziński</td>
+          <td style="max-width:400px;word-break:break-word">Best chicken ever.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Dec 2018</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Levente Kovacs</td>
+          <td style="max-width:400px;word-break:break-word">Top food, good prices and quick service. Very cantral as well...</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Dec 2022</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Marina B</td>
+          <td style="max-width:400px;word-break:break-word">Nice food, modern dining area, friendly staff....</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Dec 2017</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Maria Dimou</td>
+          <td style="max-width:400px;word-break:break-word">Great austrian cuisine! Nice atmosphere. Value for money.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Sep 2018</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Ly Samnang</td>
+          <td style="max-width:400px;word-break:break-word">Food ok,  staff ok but didn&#x27;t seem really to like working here.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Dec 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Niya Chomakova</td>
+          <td style="max-width:400px;word-break:break-word">Great portions real Vienna&#x27;s dishes, great service</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Jul 2024</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Ciprian Cusnir</td>
+          <td style="max-width:400px;word-break:break-word">An Austrian snob version of McDo.
+Tasteless food no charm</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Oct 2021</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Denitsa L. Gordon</td>
+          <td style="max-width:400px;word-break:break-word">Great service and location. Food can be way better.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Mar 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Povilas Staniulis</td>
+          <td style="max-width:400px;word-break:break-word">Lovely restaurant, service was great and food was delicious.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Dec 2017</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>yopi yopi</td>
+          <td style="max-width:400px;word-break:break-word">Speciality for Chicken Schnitzel and other chicken menu. Great taste and location...</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Aug 2016</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>S F</td>
+          <td style="max-width:400px;word-break:break-word">Great food but bad service they used to be more professional</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Apr 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Bill Warner</td>
+          <td style="max-width:400px;word-break:break-word">Busy but the wait staff were on point</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Aug 2018</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Mahul</td>
+          <td style="max-width:400px;word-break:break-word">Decent food.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Sep 2017</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Mani Tajaddini</td>
+          <td style="max-width:400px;word-break:break-word">Too expensive, too crowded, the staff too inattentive, the food not good</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">22 May 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Georgian Dan Bratu</td>
+          <td style="max-width:400px;word-break:break-word">Very good food and wine! Very nice and cosy restaurant!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Nov 2019</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Miran Ibrahimagic</td>
+          <td style="max-width:400px;word-break:break-word">Good food and good service for reasonable price in the heart of Vienna</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Dec 2018</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Yvonne Gray Griffith</td>
+          <td style="max-width:400px;word-break:break-word">Not very good service took them.20 minutes to ask us if we wanted a drink ! Food not that great</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Nov 2013</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>David Clavel</td>
+          <td style="max-width:400px;word-break:break-word">Service was extremely slow. We waited for 25 min before getting our dessert!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Sep 2017</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Beccy Sharley</td>
+          <td style="max-width:400px;word-break:break-word">Good food, slow service. Decent prices.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Dec 2022</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Shon Alam</td>
+          <td style="max-width:400px;word-break:break-word">Wanted an Austrian food experience hopefully, it gets better than this.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Jul 2018</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Randy Bell</td>
+          <td style="max-width:400px;word-break:break-word">Service is good. Food not bad for the price.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Jan 2023</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>William</td>
+          <td style="max-width:400px;word-break:break-word">Rude and inattentive service, bland food, overpriced, and incorrect order.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">27 Jul 2022</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>LIn Bill</td>
+          <td style="max-width:400px;word-break:break-word">Food is mediocre. Waitress was rude and slow.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Mar 2016</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Rhodri Ap-Hywel</td>
+          <td style="max-width:400px;word-break:break-word">Friendly staff. Very tasty food, good selection</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 May 2023</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Deeanne Edwards</td>
+          <td style="max-width:400px;word-break:break-word">Feels like Ikea but the food is great!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Dec 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Emilia Czader</td>
+          <td style="max-width:400px;word-break:break-word">Very nice service and delicious food</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Feb 2019</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Eleo Bonrod</td>
+          <td style="max-width:400px;word-break:break-word">The food, attention, atmosphere all very well!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Jul 2017</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Martin Andersson</td>
+          <td style="max-width:400px;word-break:break-word">I can not recommend the Schnitzel at this place. Expensive.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Dec 2018</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Andy Butler</td>
+          <td style="max-width:400px;word-break:break-word">Good food, good atmosphere, friendly staff</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Jan 2019</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Peter S. Rauhofer</td>
+          <td style="max-width:400px;word-break:break-word">Good food, nice staff. Clean toilets.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Aug 2021</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Stelios</td>
+          <td style="max-width:400px;word-break:break-word">I&#x27;ve tried that place because it was suggested on Wikitravel. Medium quality, nothing special.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">07 Nov 2019</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>F A</td>
+          <td style="max-width:400px;word-break:break-word">good and clean restaurant, fast and cultured service</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">06 Nov 2019</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>DP PD</td>
+          <td style="max-width:400px;word-break:break-word">Great personel. Food OK, nothing special</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Oct 2018</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Milomirka Topic</td>
+          <td style="max-width:400px;word-break:break-word">Great food</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Jan 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Phil Dean</td>
+          <td style="max-width:400px;word-break:break-word">Great menu and quick service.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Jul 2018</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Jayant Karn</td>
+          <td style="max-width:400px;word-break:break-word">Great food. Good service.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Aug 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Pozitif Spor</td>
+          <td style="max-width:400px;word-break:break-word">Good schnitzel</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Aug 2021</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>John van der Ster</td>
+          <td style="max-width:400px;word-break:break-word">Nice food, good people and service</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Feb 2019</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Francis Gálvez</td>
+          <td style="max-width:400px;word-break:break-word">Good prices, but bad for the quality of the food.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Jun 2024</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>A A</td>
+          <td style="max-width:400px;word-break:break-word">Not  very good services very dirty wc</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">03 Jan 2018</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Jelena</td>
+          <td style="max-width:400px;word-break:break-word">For ppl who like chicken very good option!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">18 Feb 2020</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Gabriela Ciobanu</td>
+          <td style="max-width:400px;word-break:break-word">Good food, nice place...</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Nov 2021</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>sabrina danella</td>
+          <td style="max-width:400px;word-break:break-word">Excellent!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Aug 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Kamila Famulska</td>
+          <td style="max-width:400px;word-break:break-word">Nice praises as for Vienna, tasty food</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Oct 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>olena qwerty</td>
+          <td style="max-width:400px;word-break:break-word">This is the first time I see that actual portions are bigger than on the picture</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">09 Jan 2018</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Mara G. Mateas</td>
+          <td style="max-width:400px;word-break:break-word">Tip-top. All in all a great experience from all possible pov’s! :)</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 May 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Jeet Bhatt</td>
+          <td style="max-width:400px;word-break:break-word">Good restaurant with good food and drinks</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Oct 2019</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Christophe</td>
+          <td style="max-width:400px;word-break:break-word">The chicken is good. But nothing special.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Sep 2024</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>kagomeq y</td>
+          <td style="max-width:400px;word-break:break-word">trust me, just DON’T GO🥵</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Nov 2018</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Mary Lee</td>
+          <td style="max-width:400px;word-break:break-word">Had to wait 10 minutes to pay when we were in a rush</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Jul 2021</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>MrBali83 “Backside” G</td>
+          <td style="max-width:400px;word-break:break-word">Good food friendly staff</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 May 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Cyril Benacka</td>
+          <td style="max-width:400px;word-break:break-word">Very good place to eat</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Jun 2023</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>mike poulter</td>
+          <td style="max-width:400px;word-break:break-word">Chicken 🐓 and Chips at its best. 10/10</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 May 2024</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Can Pakdil</td>
+          <td style="max-width:400px;word-break:break-word">Good for a quick bite.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Dec 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Emy</td>
+          <td style="max-width:400px;word-break:break-word">Everything was great!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Oct 2021</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Ivan Tomašek</td>
+          <td style="max-width:400px;word-break:break-word">it is just a shadow of the wienerwald restaurants from the 90&#x27;s</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Nov 2022</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Airsyn</td>
+          <td style="max-width:400px;word-break:break-word">Good beer and food 🍻</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Jun 2020</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Ario Angelo</td>
+          <td style="max-width:400px;word-break:break-word">Very good Schnitzel</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Jan 2020</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Ali ATALAR</td>
+          <td style="max-width:400px;word-break:break-word">Schnitzels are smaller than the others...</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">11 Jul 2020</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Peter Schmidt</td>
+          <td style="max-width:400px;word-break:break-word">👍</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Dec 2022</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>T Melle</td>
+          <td style="max-width:400px;word-break:break-word">Very unfriendly service lady 🙁</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">15 Aug 2017</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Jain</td>
+          <td style="max-width:400px;word-break:break-word">Really unfriendly waiters.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Dec 2018</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>David Viadero</td>
+          <td style="max-width:400px;word-break:break-word">Al ok.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Jan 2019</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>rene nevarez</td>
+          <td style="max-width:400px;word-break:break-word">Casual.  Decent wienerschnitzel.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Aug 2019</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Julian Valencia</td>
+          <td style="max-width:400px;word-break:break-word">Delicious food in Vienna</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">21 Aug 2018</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Sahil Kapila</td>
+          <td style="max-width:400px;word-break:break-word">Fantastic food !</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Sep 2022</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Petra Mo</td>
+          <td style="max-width:400px;word-break:break-word">Nice, thank you 🙂</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Nov 2017</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Soumya Dev Chakrabarty</td>
+          <td style="max-width:400px;word-break:break-word">Good quaint restaurant</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Dec 2019</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Kώστας Φλώκος</td>
+          <td style="max-width:400px;word-break:break-word">Toilet is no good</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">26 Dec 2018</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Zsolt Sandor</td>
+          <td style="max-width:400px;word-break:break-word">Awful staff, avoid.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">24 Dec 2023</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>bosko dragovic</td>
+          <td style="max-width:400px;word-break:break-word">Ok</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Jan 2020</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Leandro Moreira</td>
+          <td style="max-width:400px;word-break:break-word">Very good!</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Oct 2019</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>PT M</td>
+          <td style="max-width:400px;word-break:break-word">No polyethylene people</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Jul 2018</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Quoc Hoan PHAM</td>
+          <td style="max-width:400px;word-break:break-word">Very good place</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Dec 2022</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Romica Bontea</td>
+          <td style="max-width:400px;word-break:break-word">Ok</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">01 Jul 2016</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Lukas Elmer</td>
+          <td style="max-width:400px;word-break:break-word">Food was OK</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">04 Oct 2018</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Slobodan Maric</td>
+          <td style="max-width:400px;word-break:break-word">Tasteful food</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Jun 2018</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Denny Veliath</td>
+          <td style="max-width:400px;word-break:break-word">Shade</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Nov 2022</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>itai Yemini</td>
+          <td style="max-width:400px;word-break:break-word">Nice place</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Nilüfer Kaya</td>
+          <td style="max-width:400px;word-break:break-word">📍Viyana merkezinde bulunan bir tavuk restoranı. Aralık 2025’te gittim.
+
+⭐️Mekan sade ve şık. Sessiz. Nezih bir ortam. Çalışanlar ilgili. Servis hızlı.
+
+⭐️Hünnersuppentopf (8,30 Euro) tavuklu çorba çok lezzetliydi ve bol porsiyondu, tek başına bile doyurucu. 🥣
+
+⭐️Erdafelsalat (6,90 Euro) klasik şinit</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Fabian Rohrmanstorfer</td>
+          <td style="max-width:400px;word-break:break-word">Tolles klassisches österreichisches Restaurant! Sehr freundliches Personal, perfekte Lage und ideal für ein schnelles Mittag- oder Abendessen. Es gibt alle österreichischen Klassiker (Schnitzel, Schweinsbraten, etc), top Desserts, die Qualität passt immer und der Service ist schnell.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">13 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Pan Paweł Q</td>
+          <td style="max-width:400px;word-break:break-word">🇵🇱ABSOLUTNIE nie polecam tej restauracji!
+Zamówiliśmy 5 zup i jedno danie główne, jadalna okazała się jedynie zupa gulaszowa, rosoły, mdłe, przesolone i ZIMNE. Kurczak w środku surowy. Kelner zapewnił nas że czas oczekiwania na zupy będzie krótki, dostaliśmy je po 35 minutach i były zimne. Po skończ</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">17 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Derwin Morillo</td>
+          <td style="max-width:400px;word-break:break-word">Das ist wirklich das beste Backhendl, das ich in Wien gegessen habe. Der Erdäpfelsalat war auch fantastisch, die Kellner waren sehr freundlich und professionell, der Service war schnell und die Portionen sind großzügig zu einem wirklich guten Preis. Ich komme auf jeden Fall während meiner Mittagspau</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">3.00</span></td>
+          <td>Elif AY</td>
+          <td style="max-width:400px;word-break:break-word">Tavuk suyu çorba yorumlarda iyi diye söylendiği için tercih ettik.Ama tavuk suyunun içinde şehriye soğan çiğ havuçlar ve büyük tavuk parçaları yüzüyordu.Ben anlamadım nasıl beğenildiğini.Hastanede daha iyisi veriliyor…Sosyal medyanın abartması diye düşünüyorum şinitzeli de.Ama restaurant güzel sakin</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Oct 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Kasia Neubauer</td>
+          <td style="max-width:400px;word-break:break-word">Bardzo solidne porcje  pyszne jedzenie, dobre napoje . Sporo miejsc do siedzenia  więc śmiało można wejść bez rezerwacji</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Paul Lehmann</td>
+          <td style="max-width:400px;word-break:break-word">Der Service ist besonders aufmerksam. Auf meine Kinder wurde eingegangen und etwas zum malen gegeben bis unser Essen serviert wurde. Die Speisen kamen schnell und waren sehr lecker. Vielen Dank für den schönen Nachmittag an das gesamte Team.</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Aug 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Michael Krause-Petersen</td>
+          <td style="max-width:400px;word-break:break-word">Ich kenne den Wiener Wald noch aus den Guten Zeiten und auch aus München, wo die Familie noch welche hat.
+
+Das Anbiete ist sehr Modern, passt nicht zum Wiener Wald.
+
+Die Speisekarten hatten sehr viele Fettflecken.
+
+Das Personal sah so aus, als wäre das Restaurant komplett voll, aber vielleicht 10 % </td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">20 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Ádám Tóth</td>
+          <td style="max-width:400px;word-break:break-word">Örülök, hogy beléphettem étterembe ebédelni. A belső tére alapból fehér falakkal őszi színekkel. Aranyos kis étterem. A felszolgálók kedvesek és udvariasak. Jó Bécsi szeletet ettem ebédre sült hasáb burgonyával. Köszönöm a vendéglátást!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">08 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Philipp Mayer</td>
+          <td style="max-width:400px;word-break:break-word">Wir waren am Samstag späteren Nachmittag hier und haben problemlos einen Sitzplatz bekommen. Die Bedienung war freundlich und flott. Die Auswahl der Speisen beschränkt sich auf typisch österreichische Küche. Wir hatten ein Kinderschnitzel, Hühnergröstel und Backhendel. Alle Speisen waren sehr gut, w</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">16 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Alisa Tatarnikova</td>
+          <td style="max-width:400px;word-break:break-word">Прекрасное место! Внутри много столиков, быстрое обслуживание, огромный венский шницель и пиво. Место также подхлдит для визита с детьми. Рекомендую!!!</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">14 Nov 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Esra Aşkar</td>
+          <td style="max-width:400px;word-break:break-word">Şintzel doyurucu ve lezzetliydi hafifti
+Yanında kızarmış patates ile servis ediliyor
+Yerel içecek Almudler i denemenizi de tavsiye ederim</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Jan 2026</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Herr “Restaurant Kritiker” Goran</td>
+          <td style="max-width:400px;word-break:break-word">Wenn man reinkommt ist es sehr kalt und keine schöne Atmosphere . Tischkarte war Fettflecken drauf . Gedeckt wie bei einen Würstelstand . Die Kalbschnitzel war mit sehr vielen fassern und für ein Baby gedacht . Das Paniermehl war doppelt so gross und viel als die Babyschnitzel. Ich hatte es denn ält</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">02 Dec 2024</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Celina J.</td>
+          <td style="max-width:400px;word-break:break-word">Po jarmarku zmęczeni i głodni z przyjemnością zasialiśmy w Restauracji żeby posmakować orginalny wiener schnitzel , cieniutka cielęcina ( kotlet ) smażony na maśle , nie zawiedliśmy się ! Smakowało bardzo i z frytkami a ja miałam z puree ziemniaczanym i skwarkami z boczku i również bardzo dobre , zj</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">28 Jun 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Renato Perrotta</td>
+          <td style="max-width:400px;word-break:break-word">Il posto è centralissimo , la location davvero ben curata...
+La birra anche va bene , peccato per la Cotoletta di vitello schnitzel , non era cotta benissimo ed oltretutto molto costosa 24€ per un piatto con pochissime patatine fritte.
+Da rivedere,  si potrebbe fare meglio mi dispiace!
+Ci sono anche</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">10 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>EEN LMNP</td>
+          <td style="max-width:400px;word-break:break-word">Une merveilleuse expérience poir découvrir d&#x27;excellents plats autrichiens. Ce restaurant était une recommandation pour nos papilles. Cet établissement est un incontournable pour ceux qui veulent bien manger à un prix abordable. 👍👍</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">31 Dec 2025</td>
+          <td class="right"><span class="rating-pill bad">2.00</span></td>
+          <td>Hjördis Petersohn</td>
+          <td style="max-width:400px;word-break:break-word">Essen Fade, Schnitzel nicht empfehlenswert (Miserabel gewürzt), Vegetarier und Veganer können sich nur von Beilagen ernähren und die sind auch mehr schlecht als Recht gewürzt. Der Kartoffelsalat ist nicht empfehlenswert.
+Service war nett. Preise vollkommen überhöht</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">22 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>S Rácz</td>
+          <td style="max-width:400px;word-break:break-word">A kiszolgálás baráti, az ételek átlagosak, a pincében kissé hűvös volt. Pozitív, hogy gond nélkül tudták fogadni a 15 fős társaságunkat. Egy próbát megér...</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">30 Oct 2025</td>
+          <td class="right"><span class="rating-pill bad">1.00</span></td>
+          <td>Pauletta Marchetti</td>
+          <td style="max-width:400px;word-break:break-word">1.Mal Wienerwald-Besuch:
+Wir waren in den Herbstferien mit 3 Kindern hier.
+
+Das Personal war sehr freundlich.
+Aber es kamen 3 Personen nacheinander auf uns zu, ob wir schon bestellt haben.
+Ein Hochstuhl wurde uns gleich gebracht.
+
+Das Essen war leider gar nicht gut!
+
+- Die Pommes waren bei allen nic</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">29 Apr 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Angelica Torices</td>
+          <td style="max-width:400px;word-break:break-word">Hemos comido muy bien. Considerando que estamos en plena zona turística el precio es bastante razonable y las porciones son generosas. El ambiente es muy agradable y tranquilo y la atención ha sido estupenda.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">25 Aug 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Matthias Schertl</td>
+          <td style="max-width:400px;word-break:break-word">Alles war bestens und das Preis-Leistungsverhältnis ist super. Es gibt nichts besonders aufregendes aber es schmeckt alles sehr gut.</td>
+          <td class="right">No</td>
+        </tr>
+        <tr>
+          <td class="mono">19 Dec 2025</td>
+          <td class="right"><span class="rating-pill good">5.00</span></td>
+          <td>Anwar Alhomsy</td>
+          <td style="max-width:400px;word-break:break-word">„Das Essen war sehr lecker, der Service war hervorragend und die Atmosphäre war sehrangenehm. Absolut empfehlenswert</td>
+          <td class="right">Yes</td>
+        </tr>
+        <tr>
+          <td class="mono">12 Feb 2026</td>
+          <td class="right"><span class="rating-pill good">4.00</span></td>
+          <td>Jens Lang</td>
+          <td style="max-width:400px;word-break:break-word">Rustikal, allerdings ist das Wiener Schnitzel eher durchschnittlich in der Zubereitung. Das Essen war heiß und die Bedienung freundlich. Für den großen Durst gibt es günstig Leitungswasser zu bestellen.</td>
+          <td class="right">Yes</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="legal-note">
+  <strong>Legal Notice:</strong> This report was produced using automated data analysis. All quantitative data is derived directly from the source review file provided. Qualitative interpretations reflect patterns in the analysed dataset and should be read as analytical observations, not professional advice. <strong>TRIC accepts no liability for decisions or actions taken on the basis of this report.</strong> · TRIC — The Hospitality Intelligence Company · Confidential · For internal use only.
+</div>
+
+</div>
+</body>
+</html>
