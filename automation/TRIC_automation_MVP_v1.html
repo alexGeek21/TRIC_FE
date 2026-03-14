@@ -118,6 +118,7 @@
       font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
       text-transform: uppercase; color: var(--accent);
     }
+    .progress-note { font-size: 0.75rem; color: var(--text-dim); line-height: 1.4; margin-top: -0.25rem; }
     .progress-steps { display: flex; flex-direction: column; gap: 0.5rem; }
     .step {
       display: flex; align-items: center; gap: 0.6rem;
@@ -213,6 +214,7 @@
     <!-- Progress tracker (shown while job runs) -->
     <div class="progress-box" id="progress-box">
       <span class="progress-label">Analysis in progress</span>
+      <span class="progress-note">This usually takes 2–4 minutes, including GitHub Pages activation.</span>
       <div class="progress-steps">
         <div class="step" id="step-scraping">
           <span class="step-icon" id="icon-scraping">○</span>
@@ -224,7 +226,11 @@
         </div>
         <div class="step" id="step-publishing">
           <span class="step-icon" id="icon-publishing">○</span>
-          Publishing report to your dashboard
+          Pushing report to GitHub
+        </div>
+        <div class="step" id="step-activating">
+          <span class="step-icon" id="icon-activating">○</span>
+          Activating on GitHub Pages
         </div>
       </div>
     </div>
@@ -249,9 +255,11 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const BACKEND_URL    = 'https://tric-be-mvp-service-v1.onrender.com';
-  const POLL_INTERVAL  = 3000;  // ms between status polls
-  const POLL_TIMEOUT   = 180000; // 3 min max wait
+  const BACKEND_URL         = 'https://tric-be-mvp-service-v1.onrender.com';
+  const POLL_INTERVAL       = 3000;   // ms between backend status polls
+  const POLL_TIMEOUT        = 180000; // 3 min max wait for backend job
+  const PAGES_POLL_INTERVAL = 5000;   // ms between GitHub Pages readiness checks
+  const PAGES_TIMEOUT       = 180000; // 3 min max wait for GitHub Pages to activate
 
   // ── DOM ───────────────────────────────────────────────────────────────────
   const input          = document.getElementById('maps-url');
@@ -273,6 +281,7 @@
 
   let debounceTimer = null;
   let pollTimer     = null;
+  let pagesTimer    = null;  // timer for GitHub Pages readiness polling
   let currentUrl    = '';
   let placesService = null;
   let isAnalysing   = false;
@@ -319,26 +328,28 @@
     }
   }
 
-  // Infer progress from job status for the step indicators
-  // Outscraper call ~10s, build is instant, GitHub push ~2s
-  // We only get pending/running/done from the API so we animate steps by time
+  // Infer progress from job status for the step indicators.
+  // Steps 1-3 are animated by time (we only get pending/running/done from the API).
+  // Step 4 (GitHub Pages activation) is driven by a real HTTP readiness check.
   let stepTimer = null;
   function startStepAnimation() {
     setStep('step-scraping',   'icon-scraping',   'active');
     setStep('step-building',   'icon-building',   'idle');
     setStep('step-publishing', 'icon-publishing', 'idle');
+    setStep('step-activating', 'icon-activating', 'idle');
 
-    // After ~12s assume scraping done, building
+    // After ~40s assume scraping done (250 reviews with sort=newest typically takes 30-60s)
     stepTimer = setTimeout(() => {
       setStep('step-scraping', 'icon-scraping', 'done');
       setStep('step-building', 'icon-building', 'active');
 
-      // After another ~2s assume building done, publishing
+      // Building is near-instant — move to publishing after 3s
       setTimeout(() => {
         setStep('step-building',   'icon-building',   'done');
         setStep('step-publishing', 'icon-publishing', 'active');
-      }, 2000);
-    }, 12000);
+        // Step 3 stays active until onJobDone() fires (real backend signal)
+      }, 3000);
+    }, 40000);
   }
 
   function finishSteps() {
@@ -346,11 +357,13 @@
     setStep('step-scraping',   'icon-scraping',   'done');
     setStep('step-building',   'icon-building',   'done');
     setStep('step-publishing', 'icon-publishing', 'done');
+    setStep('step-activating', 'icon-activating', 'done');
   }
 
   function resetAll() {
     clearTimeout(pollTimer);
     clearTimeout(stepTimer);
+    clearTimeout(pagesTimer);
     isAnalysing = false;
     input.value = '';
     input.disabled = false;
@@ -363,7 +376,7 @@
     submitBtn.classList.remove('visible');
     setStatus('');
     // Reset step icons
-    ['scraping','building','publishing'].forEach(s => {
+    ['scraping','building','publishing','activating'].forEach(s => {
       const el = document.getElementById(`icon-${s}`);
       if (el) el.textContent = '○';
       document.getElementById(`step-${s}`).className = 'step';
@@ -467,7 +480,7 @@
       const res = await fetch(`${BACKEND_URL}/api/analyse`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: currentUrl, window: "all" })
+        body: JSON.stringify({ url: currentUrl })
       });
 
       if (!res.ok) throw new Error(`Backend error ${res.status}`);
@@ -535,14 +548,58 @@
   }
 
   function onJobDone(reportUrl) {
-    finishSteps();
+    // Backend is done — mark steps 1-3 complete and start the Pages readiness check
+    clearTimeout(stepTimer);
+    setStep('step-scraping',   'icon-scraping',   'done');
+    setStep('step-building',   'icon-building',   'done');
+    setStep('step-publishing', 'icon-publishing', 'done');
+    setStep('step-activating', 'icon-activating', 'active');
+    setStatus('Waiting for GitHub Pages to activate…', 'loading');
+    pollReportUrl(reportUrl);
+  }
+
+  // Poll the report URL until it returns HTTP 200, then reveal the link.
+  // GitHub Pages can take 30-120s to rebuild after a push.
+  function pollReportUrl(reportUrl) {
+    const started = Date.now();
+
+    async function check() {
+      try {
+        const res = await fetch(reportUrl, { method: 'HEAD', cache: 'no-store' });
+        if (res.ok) {
+          onReportReady(reportUrl);
+          return;
+        }
+      } catch(e) {
+        // Network blip or CORS — keep retrying
+      }
+
+      if (Date.now() - started > PAGES_TIMEOUT) {
+        // Timed out — show the link anyway; Pages may still be deploying
+        onReportReady(reportUrl, true);
+        return;
+      }
+
+      pagesTimer = setTimeout(check, PAGES_POLL_INTERVAL);
+    }
+
+    check();
+  }
+
+  function onReportReady(reportUrl, timedOut = false) {
+    setStep('step-activating', 'icon-activating', 'done');
     progressBox.classList.remove('visible');
 
     const placeName = previewName.textContent || 'Restaurant Report';
     resultPlaceName.textContent = placeName;
     resultLink.href = reportUrl;
     resultBox.classList.add('visible');
-    setStatus('Report ready ✓', 'success');
+
+    if (timedOut) {
+      setStatus('Report ready — GitHub Pages may still be activating', '');
+    } else {
+      setStatus('Report ready ✓', 'success');
+    }
     isAnalysing = false;
   }
 
